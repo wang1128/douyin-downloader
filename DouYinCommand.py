@@ -21,6 +21,8 @@ configModel = {
     "cover": True,
     "avatar": True,
     "json": True,
+    "start_time": "",
+    "end_time": "",
     "folderstyle": True,
     "mode": ["post"],
     "number": {
@@ -107,107 +109,107 @@ def yamlConfig():
     configDict = yaml.load(stream=cfg, Loader=yaml.FullLoader)
 
     try:
-        if configDict["link"] != None:
+        if configDict["link"] is not None:
             configModel["link"] = configDict["link"]
     except Exception as e:
         print("[  警告  ]:link未设置, 程序退出...\r\n")
     try:
-        if configDict["path"] != None:
+        if configDict["path"] is not None:
             configModel["path"] = configDict["path"]
     except Exception as e:
         print("[  警告  ]:path未设置, 使用当前路径...\r\n")
     try:
-        if configDict["music"] != None:
+        if configDict["music"] is not None:
             configModel["music"] = configDict["music"]
     except Exception as e:
         print("[  警告  ]:music未设置, 使用默认值True...\r\n")
     try:
-        if configDict["cover"] != None:
+        if configDict["cover"] is not None:
             configModel["cover"] = configDict["cover"]
     except Exception as e:
         print("[  警告  ]:cover未设置, 使用默认值True...\r\n")
     try:
-        if configDict["avatar"] != None:
+        if configDict["avatar"] is not None:
             configModel["avatar"] = configDict["avatar"]
     except Exception as e:
         print("[  警告  ]:avatar未设置, 使用默认值True...\r\n")
     try:
-        if configDict["json"] != None:
+        if configDict["json"] is not None:
             configModel["json"] = configDict["json"]
     except Exception as e:
         print("[  警告  ]:json未设置, 使用默认值True...\r\n")
     try:
-        if configDict["folderstyle"] != None:
+        if configDict["folderstyle"] is not None:
             configModel["folderstyle"] = configDict["folderstyle"]
     except Exception as e:
         print("[  警告  ]:folderstyle未设置, 使用默认值True...\r\n")
     try:
-        if configDict["mode"] != None:
+        if configDict["mode"] is not None:
             configModel["mode"] = configDict["mode"]
     except Exception as e:
         print("[  警告  ]:mode未设置, 使用默认值post...\r\n")
     try:
-        if configDict["number"]["post"] != None:
+        if configDict["number"]["post"] is not None:
             configModel["number"]["post"] = configDict["number"]["post"]
     except Exception as e:
         print("[  警告  ]:post number未设置, 使用默认值0...\r\n")
     try:
-        if configDict["number"]["like"] != None:
+        if configDict["number"]["like"] is not None:
             configModel["number"]["like"] = configDict["number"]["like"]
     except Exception as e:
         print("[  警告  ]:like number未设置, 使用默认值0...\r\n")
     try:
-        if configDict["number"]["allmix"] != None:
+        if configDict["number"]["allmix"] is not None:
             configModel["number"]["allmix"] = configDict["number"]["allmix"]
     except Exception as e:
         print("[  警告  ]:allmix number未设置, 使用默认值0...\r\n")
     try:
-        if configDict["number"]["mix"] != None:
+        if configDict["number"]["mix"] is not None:
             configModel["number"]["mix"] = configDict["number"]["mix"]
     except Exception as e:
         print("[  警告  ]:mix number未设置, 使用默认值0...\r\n")
     try:
-        if configDict["number"]["music"] != None:
+        if configDict["number"]["music"] is not None:
             configModel["number"]["music"] = configDict["number"]["music"]
     except Exception as e:
         print("[  警告  ]:music number未设置, 使用默认值0...\r\n")
     try:
-        if configDict["database"] != None:
+        if configDict["database"] is not None:
             configModel["database"] = configDict["database"]
     except Exception as e:
         print("[  警告  ]:database未设置, 使用默认值False...\r\n")
     try:
-        if configDict["increase"]["post"] != None:
+        if configDict["increase"]["post"] is not None:
             configModel["increase"]["post"] = configDict["increase"]["post"]
     except Exception as e:
         print("[  警告  ]:post 增量更新未设置, 使用默认值False...\r\n")
     try:
-        if configDict["increase"]["like"] != None:
+        if configDict["increase"]["like"] is not None:
             configModel["increase"]["like"] = configDict["increase"]["like"]
     except Exception as e:
         print("[  警告  ]:like 增量更新未设置, 使用默认值False...\r\n")
     try:
-        if configDict["increase"]["allmix"] != None:
+        if configDict["increase"]["allmix"] is not None:
             configModel["increase"]["allmix"] = configDict["increase"]["allmix"]
     except Exception as e:
         print("[  警告  ]:allmix 增量更新未设置, 使用默认值False...\r\n")
     try:
-        if configDict["increase"]["mix"] != None:
+        if configDict["increase"]["mix"] is not None:
             configModel["increase"]["mix"] = configDict["increase"]["mix"]
     except Exception as e:
         print("[  警告  ]:mix 增量更新未设置, 使用默认值False...\r\n")
     try:
-        if configDict["increase"]["music"] != None:
+        if configDict["increase"]["music"] is not None:
             configModel["increase"]["music"] = configDict["increase"]["music"]
     except Exception as e:
         print("[  警告  ]:music 增量更新未设置, 使用默认值False...\r\n")
     try:
-        if configDict["thread"] != None:
+        if configDict["thread"] is not None:
             configModel["thread"] = configDict["thread"]
     except Exception as e:
         print("[  警告  ]:thread未设置, 使用默认值5...\r\n")
     try:
-        if configDict["cookies"] != None:
+        if configDict["cookies"] is not None:
             cookiekey = configDict["cookies"].keys()
             cookieStr = ""
             for i in cookiekey:
@@ -216,7 +218,16 @@ def yamlConfig():
     except Exception as e:
         pass
     try:
-        if configDict["cookie"] != None:
+        if configDict["start_time"] is not None:
+            configModel["start_time"] = configDict["start_time"]
+        if configDict["end_time"] is not None:
+            if configDict["end_time"] == "now":
+                configModel["end_time"] = time.strftime("%Y-%m-%d", time.localtime())
+            configModel["end_time"] = configDict["end_time"]
+    except Exception as e:
+        pass
+    try:
+        if configDict["cookie"] is not None:
             configModel["cookie"] = configDict["cookie"]
     except Exception as e:
         pass
@@ -235,7 +246,7 @@ def main():
         configModel["avatar"] = args.avatar
         configModel["json"] = args.json
         configModel["folderstyle"] = args.folderstyle
-        if args.mode == None or args.mode == []:
+        if args.mode is None or args.mode == []:
             args.mode = []
             args.mode.append("post")
         configModel["mode"] = list(set(args.mode))
@@ -255,7 +266,7 @@ def main():
     else:
         yamlConfig()
 
-    if configModel["link"] == []:
+    if not configModel["link"]:
         return
 
     if configModel["cookie"] is not None and configModel["cookie"] != "":
@@ -292,11 +303,19 @@ def main():
                 print("[  提示  ]:正在请求用户主页模式: " + mode + "\r\n")
                 if mode == 'post' or mode == 'like':
                     datalist = dy.getUserInfo(key, mode, 35, configModel["number"][mode], configModel["increase"][mode])
+                    want_data_list = []
                     if datalist is not None and datalist != []:
                         modePath = os.path.join(userPath, mode)
                         if not os.path.exists(modePath):
                             os.mkdir(modePath)
-                        dl.userDownload(awemeList=datalist, savePath=modePath)
+
+                        for index in range(0, len(datalist)):
+                            if configModel["start_time"] <= datalist[index]["create_time"][:10] <= configModel["end_time"]:
+                                want_data_list.append(datalist[index])
+                        if len(want_data_list) == 0:
+                            print("[  提示  ]:没有符合时间要求的数据\r\n")
+                            continue
+                        dl.userDownload(awemeList=want_data_list, savePath=modePath)
                 elif mode == 'mix':
                     mixIdNameDict = dy.getUserAllMixInfo(key, 35, configModel["number"]["allmix"])
                     if mixIdNameDict is not None and mixIdNameDict != {}:
@@ -333,8 +352,7 @@ def main():
             print("[  提示  ]:正在请求单个作品\r\n")
             datanew, dataraw = dy.getAwemeInfo(key)
             if datanew is not None and datanew != {}:
-                datalist = []
-                datalist.append(datanew)
+                datalist = [datanew]
                 awemePath = os.path.join(configModel["path"], "aweme")
                 if not os.path.exists(awemePath):
                     os.mkdir(awemePath)

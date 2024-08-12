@@ -41,6 +41,12 @@ avatar: True
 # 可选
 json: True
 
+
+# 下载时间范围
+start_time: "2024-06-01"
+end_time: "2024-06-30"
+
+
 folderstyle: True # True -> 每个视频是一个单独的文件夹; False -> 所有视频共用一个文件夹
 # True
 # user_xxx_xxx
