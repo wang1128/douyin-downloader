@@ -5,37 +5,36 @@
 # 3. 请使用英文字符
 #######################################
 
-# 下载链接配置
-# 支持的链接类型：视频、图集、直播、合集、音乐、个人主页
+# 下载链接，支持多个链接
 link:
-  - https://v.douyin.com/xxxxxx/
-  - https://www.douyin.com/user/xxxxxx
+  - "https://v.douyin.com/xxxxx/"
+  - "https://v.douyin.com/yyyyy/"
 
-# 基础配置
-path: ./downloads     # 下载保存位置
-thread: 5            # 下载线程数
-database: true       # 是否使用数据库
+# 下载保存路径，默认当前目录
+path: "./downloads"
 
-# 下载内容配置
-music: true          # 是否下载音乐
-cover: true          # 是否下载封面
-avatar: true         # 是否下载头像
-json: true           # 是否保存JSON数据
-folderstyle: true    # 是否使用独立文件夹
+# 下载选项
+music: true      # 是否下载音乐
+cover: true      # 是否下载封面
+avatar: true     # 是否下载头像
+json: true       # 是否保存JSON数据
+folderstyle: true  # 是否使用文件夹风格保存
 
-# 下载模式配置
+# 下载模式设置
 mode: 
-  - post            # 发布的作品
-  - like            # 喜欢的作品
-  - mix             # 合集作品
+  - "post"      # post:发布作品 like:点赞作品 mix:合集作品
 
-# 下载数量配置
+# 下载数量设置（0表示全部下载）
 number:
-  post: 0           # 主页作品下载数量（0表示全部）
-  like: 0           # 喜欢作品下载数量
-  allmix: 0         # 主页合集下载数量
-  mix: 0            # 单个合集下载数量
-  music: 0          # 音乐作品下载数量
+  post: 0       # 发布作品下载数量
+  like: 0       # 点赞作品下载数量
+  allmix: 0     # 所有合集下载数量
+  mix: 0        # 单个合集下载数量
+  music: 0      # 音乐下载数量
+
+# 其他设置
+thread: 5       # 下载线程数
+database: true  # 是否使用数据库
 
 # 增量更新配置
 increase:
