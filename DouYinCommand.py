@@ -8,11 +8,40 @@ import sys
 import json
 import yaml
 import time
+from dataclasses import dataclass
+from typing import List, Dict, Optional
+from pathlib import Path
 
 from apiproxy.douyin.douyin import Douyin
 from apiproxy.douyin.download import Download
 from apiproxy.douyin import douyin_headers
 from apiproxy.common import utils
+
+@dataclass
+class DownloadConfig:
+    """下载配置类"""
+    link: List[str]
+    path: Path
+    music: bool = True
+    cover: bool = True
+    avatar: bool = True
+    json: bool = True
+    start_time: str = ""
+    end_time: str = ""
+    folderstyle: bool = True
+    mode: List[str] = ("post",)
+    thread: int = 5
+    cookie: Optional[str] = None
+    
+    @classmethod
+    def from_yaml(cls, yaml_path: Path) -> "DownloadConfig":
+        """从YAML文件加载配置"""
+        # ... 配置加载逻辑
+        
+    @classmethod 
+    def from_args(cls, args) -> "DownloadConfig":
+        """从命令行参数加载配置"""
+        # ... 参数加载逻辑
 
 configModel = {
     "link": [],

@@ -7,12 +7,14 @@ import requests
 import json
 import time
 import copy
+# from tenacity import retry, stop_after_attempt, wait_exponential
 
 from apiproxy.douyin import douyin_headers
 from apiproxy.douyin.urls import Urls
 from apiproxy.douyin.result import Result
 from apiproxy.douyin.database import DataBase
 from apiproxy.common import utils
+from utils import logger
 
 
 class Douyin(object):
@@ -99,9 +101,10 @@ class Douyin(object):
 
         return key_type, key
 
-    # 传入 aweme_id
-    # 返回 数据 字典
+    # 暂时注释掉装饰器
+    # @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
     def getAwemeInfo(self, aweme_id):
+        """获取作品信息"""
         print('[  提示  ]:正在请求的作品 id = %s\r' % aweme_id)
         if aweme_id is None:
             return None

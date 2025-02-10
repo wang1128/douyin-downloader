@@ -8,10 +8,16 @@ import time
 import requests
 from tqdm import tqdm
 from concurrent.futures import ThreadPoolExecutor, wait, ALL_COMPLETED
+from typing import List, Optional
+from pathlib import Path
+# import asyncio  # 暂时注释掉
+# import aiohttp  # 暂时注释掉
+import logging
 
 from apiproxy.douyin import douyin_headers
 from apiproxy.common import utils
 
+logger = logging.getLogger("douyin_downloader")
 
 class Download(object):
     def __init__(self, thread=5, music=True, cover=True, avatar=True, resjson=True, folderstyle=True):
@@ -153,7 +159,7 @@ class Download(object):
         except Exception as e:
             print("[  错误  ]:下载作品时出错\r\n")
 
-    def userDownload(self, awemeList: list, savePath=os.getcwd()):
+    def userDownload(self, awemeList: List[dict], savePath: Path):
         if awemeList is None:
             return
         if not os.path.exists(savePath):
@@ -164,8 +170,10 @@ class Download(object):
 
         start = time.time()  # 开始时间
 
-        for aweme in awemeList:
-            self.awemeDownload(awemeDict=aweme, savePath=savePath)
+        with tqdm(total=len(awemeList), desc="下载进度") as pbar:
+            for aweme in awemeList:
+                self.awemeDownload(awemeDict=aweme, savePath=savePath)
+                pbar.update(1)
 
         wait(self.alltask, return_when=ALL_COMPLETED)
 
@@ -184,6 +192,32 @@ class Download(object):
 
         end = time.time()  # 结束时间
         print('\n' + '[下载完成]:耗时: %d分钟%d秒\n' % (int((end - start) / 60), ((end - start) % 60)))  # 输出下载用时时间
+
+    # 暂时注释掉异步下载相关的方法
+    '''
+    async def download_file(self, url: str, path: Path) -> bool:
+        """异步下载单个文件"""
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url) as response:
+                    if response.status == 200:
+                        with open(path, 'wb') as f:
+                            f.write(await response.read())
+                        return True
+                    else:
+                        logger.error(f"下载失败: {url}, 状态码: {response.status}")
+                        return False
+        except Exception as e:
+            logger.error(f"下载出错: {url}, 错误: {str(e)}")
+            return False
+
+    async def batch_download(self, urls: List[str], paths: List[Path]):
+        """批量异步下载"""
+        tasks = [self.download_file(url, path) 
+                for url, path in zip(urls, paths)]
+        results = await asyncio.gather(*tasks)
+        return all(results)
+    '''
 
 
 if __name__ == "__main__":
