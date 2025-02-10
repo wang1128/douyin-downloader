@@ -104,275 +104,205 @@ def argument():
 def yamlConfig():
     curPath = os.path.dirname(os.path.realpath(sys.argv[0]))
     yamlPath = os.path.join(curPath, "config.yml")
-    f = open(yamlPath, 'r', encoding='utf-8')
-    cfg = f.read()
-    configDict = yaml.load(stream=cfg, Loader=yaml.FullLoader)
-
+    
     try:
-        if configDict["link"] is not None:
-            configModel["link"] = configDict["link"]
-    except Exception as e:
-        print("[  警告  ]:link未设置, 程序退出...\r\n")
-    try:
-        if configDict["path"] is not None:
-            configModel["path"] = configDict["path"]
-    except Exception as e:
-        print("[  警告  ]:path未设置, 使用当前路径...\r\n")
-    try:
-        if configDict["music"] is not None:
-            configModel["music"] = configDict["music"]
-    except Exception as e:
-        print("[  警告  ]:music未设置, 使用默认值True...\r\n")
-    try:
-        if configDict["cover"] is not None:
-            configModel["cover"] = configDict["cover"]
-    except Exception as e:
-        print("[  警告  ]:cover未设置, 使用默认值True...\r\n")
-    try:
-        if configDict["avatar"] is not None:
-            configModel["avatar"] = configDict["avatar"]
-    except Exception as e:
-        print("[  警告  ]:avatar未设置, 使用默认值True...\r\n")
-    try:
-        if configDict["json"] is not None:
-            configModel["json"] = configDict["json"]
-    except Exception as e:
-        print("[  警告  ]:json未设置, 使用默认值True...\r\n")
-    try:
-        if configDict["folderstyle"] is not None:
-            configModel["folderstyle"] = configDict["folderstyle"]
-    except Exception as e:
-        print("[  警告  ]:folderstyle未设置, 使用默认值True...\r\n")
-    try:
-        if configDict["mode"] is not None:
-            configModel["mode"] = configDict["mode"]
-    except Exception as e:
-        print("[  警告  ]:mode未设置, 使用默认值post...\r\n")
-    try:
-        if configDict["number"]["post"] is not None:
-            configModel["number"]["post"] = configDict["number"]["post"]
-    except Exception as e:
-        print("[  警告  ]:post number未设置, 使用默认值0...\r\n")
-    try:
-        if configDict["number"]["like"] is not None:
-            configModel["number"]["like"] = configDict["number"]["like"]
-    except Exception as e:
-        print("[  警告  ]:like number未设置, 使用默认值0...\r\n")
-    try:
-        if configDict["number"]["allmix"] is not None:
-            configModel["number"]["allmix"] = configDict["number"]["allmix"]
-    except Exception as e:
-        print("[  警告  ]:allmix number未设置, 使用默认值0...\r\n")
-    try:
-        if configDict["number"]["mix"] is not None:
-            configModel["number"]["mix"] = configDict["number"]["mix"]
-    except Exception as e:
-        print("[  警告  ]:mix number未设置, 使用默认值0...\r\n")
-    try:
-        if configDict["number"]["music"] is not None:
-            configModel["number"]["music"] = configDict["number"]["music"]
-    except Exception as e:
-        print("[  警告  ]:music number未设置, 使用默认值0...\r\n")
-    try:
-        if configDict["database"] is not None:
-            configModel["database"] = configDict["database"]
-    except Exception as e:
-        print("[  警告  ]:database未设置, 使用默认值False...\r\n")
-    try:
-        if configDict["increase"]["post"] is not None:
-            configModel["increase"]["post"] = configDict["increase"]["post"]
-    except Exception as e:
-        print("[  警告  ]:post 增量更新未设置, 使用默认值False...\r\n")
-    try:
-        if configDict["increase"]["like"] is not None:
-            configModel["increase"]["like"] = configDict["increase"]["like"]
-    except Exception as e:
-        print("[  警告  ]:like 增量更新未设置, 使用默认值False...\r\n")
-    try:
-        if configDict["increase"]["allmix"] is not None:
-            configModel["increase"]["allmix"] = configDict["increase"]["allmix"]
-    except Exception as e:
-        print("[  警告  ]:allmix 增量更新未设置, 使用默认值False...\r\n")
-    try:
-        if configDict["increase"]["mix"] is not None:
-            configModel["increase"]["mix"] = configDict["increase"]["mix"]
-    except Exception as e:
-        print("[  警告  ]:mix 增量更新未设置, 使用默认值False...\r\n")
-    try:
-        if configDict["increase"]["music"] is not None:
-            configModel["increase"]["music"] = configDict["increase"]["music"]
-    except Exception as e:
-        print("[  警告  ]:music 增量更新未设置, 使用默认值False...\r\n")
-    try:
-        if configDict["thread"] is not None:
-            configModel["thread"] = configDict["thread"]
-    except Exception as e:
-        print("[  警告  ]:thread未设置, 使用默认值5...\r\n")
-    try:
-        if configDict["cookies"] is not None:
-            cookiekey = configDict["cookies"].keys()
-            cookieStr = ""
-            for i in cookiekey:
-                cookieStr = cookieStr + i + "=" + configDict["cookies"][i] + "; "
+        with open(yamlPath, 'r', encoding='utf-8') as f:
+            configDict = yaml.safe_load(f)
+            
+        # 使用字典推导式简化配置更新
+        for key in configModel:
+            if key in configDict:
+                if isinstance(configModel[key], dict):
+                    configModel[key].update(configDict[key] or {})
+                else:
+                    configModel[key] = configDict[key]
+                    
+        # 特殊处理cookie
+        if configDict.get("cookies"):
+            cookieStr = "; ".join(f"{k}={v}" for k,v in configDict["cookies"].items())
             configModel["cookie"] = cookieStr
+            
+        # 特殊处理end_time
+        if configDict.get("end_time") == "now":
+            configModel["end_time"] = time.strftime("%Y-%m-%d", time.localtime())
+            
+    except FileNotFoundError:
+        print("[  警告  ]:未找到配置文件config.yml\r\n")
     except Exception as e:
-        pass
-    try:
-        if configDict["start_time"] is not None:
-            configModel["start_time"] = configDict["start_time"]
-        if configDict["end_time"] is not None:
-            if configDict["end_time"] == "now":
-                configModel["end_time"] = time.strftime("%Y-%m-%d", time.localtime())
-            configModel["end_time"] = configDict["end_time"]
-    except Exception as e:
-        pass
-    try:
-        if configDict["cookie"] is not None:
-            configModel["cookie"] = configDict["cookie"]
-    except Exception as e:
-        pass
+        print(f"[  警告  ]:配置文件解析出错: {str(e)}\r\n")
 
 
 def main():
-    start = time.time()  # 开始时间
+    start = time.time()
 
+    # 配置初始化
     args = argument()
-
     if args.cmd:
-        configModel["link"] = args.link
-        configModel["path"] = args.path
-        configModel["music"] = args.music
-        configModel["cover"] = args.cover
-        configModel["avatar"] = args.avatar
-        configModel["json"] = args.json
-        configModel["folderstyle"] = args.folderstyle
-        if args.mode is None or args.mode == []:
-            args.mode = []
-            args.mode.append("post")
-        configModel["mode"] = list(set(args.mode))
-        configModel["number"]["post"] = args.postnumber
-        configModel["number"]["like"] = args.likenumber
-        configModel["number"]["allmix"] = args.allmixnumber
-        configModel["number"]["mix"] = args.mixnumber
-        configModel["number"]["music"] = args.musicnumber
-        configModel["database"] = args.database
-        configModel["increase"]["post"] = args.postincrease
-        configModel["increase"]["like"] = args.likeincrease
-        configModel["increase"]["allmix"] = args.allmixincrease
-        configModel["increase"]["mix"] = args.mixincrease
-        configModel["increase"]["music"] = args.musicincrease
-        configModel["thread"] = args.thread
-        configModel["cookie"] = args.cookie
+        update_config_from_args(args)
     else:
         yamlConfig()
 
     if not configModel["link"]:
+        print("[  错误  ]:未设置下载链接")
         return
 
-    if configModel["cookie"] is not None and configModel["cookie"] != "":
+    # Cookie处理
+    if configModel["cookie"]:
         douyin_headers["Cookie"] = configModel["cookie"]
 
+    # 路径处理
     configModel["path"] = os.path.abspath(configModel["path"])
+    os.makedirs(configModel["path"], exist_ok=True)
     print("[  提示  ]:数据保存路径 " + configModel["path"])
-    if not os.path.exists(configModel["path"]):
-        os.mkdir(configModel["path"])
 
+    # 初始化下载器
     dy = Douyin(database=configModel["database"])
-    dl = Download(thread=configModel["thread"], music=configModel["music"], cover=configModel["cover"],
-                  avatar=configModel["avatar"], resjson=configModel["json"],
-                  folderstyle=configModel["folderstyle"])
+    dl = Download(
+        thread=configModel["thread"],
+        music=configModel["music"],
+        cover=configModel["cover"],
+        avatar=configModel["avatar"],
+        resjson=configModel["json"],
+        folderstyle=configModel["folderstyle"]
+    )
 
+    # 处理每个链接
     for link in configModel["link"]:
-        print("--------------------------------------------------------------------------------")
-        print("[  提示  ]:正在请求的链接: " + link + "\r\n")
-        url = dy.getShareLink(link)
-        key_type, key = dy.getKey(url)
-        if key_type == "user":
-            print("[  提示  ]:正在请求用户主页下作品\r\n")
-            data = dy.getUserDetailInfo(sec_uid=key)
-            nickname = ""
-            if data is not None and data != {}:
-                nickname = utils.replaceStr(data['user']['nickname'])
+        process_link(dy, dl, link)
 
-            userPath = os.path.join(configModel["path"], "user_" + nickname + "_" + key)
-            if not os.path.exists(userPath):
-                os.mkdir(userPath)
+    # 计算耗时
+    duration = time.time() - start
+    print(f'\n[下载完成]:总耗时: {int(duration/60)}分钟{int(duration%60)}秒\n')
 
-            for mode in configModel["mode"]:
-                print("--------------------------------------------------------------------------------")
-                print("[  提示  ]:正在请求用户主页模式: " + mode + "\r\n")
-                if mode == 'post' or mode == 'like':
-                    datalist = dy.getUserInfo(key, mode, 35, configModel["number"][mode], configModel["increase"][mode])
-                    want_data_list = []
-                    if datalist is not None and datalist != []:
-                        modePath = os.path.join(userPath, mode)
-                        if not os.path.exists(modePath):
-                            os.mkdir(modePath)
 
-                        for index in range(0, len(datalist)):
-                            if configModel["start_time"] <= datalist[index]["create_time"][:10] <= configModel["end_time"]:
-                                want_data_list.append(datalist[index])
-                        if len(want_data_list) == 0:
-                            print("[  提示  ]:没有符合时间要求的数据\r\n")
-                            continue
-                        dl.userDownload(awemeList=want_data_list, savePath=modePath)
-                elif mode == 'mix':
-                    mixIdNameDict = dy.getUserAllMixInfo(key, 35, configModel["number"]["allmix"])
-                    if mixIdNameDict is not None and mixIdNameDict != {}:
-                        for mix_id in mixIdNameDict:
-                            print(f'[  提示  ]:正在下载合集 [{mixIdNameDict[mix_id]}] 中的作品\r\n')
-                            mix_file_name = utils.replaceStr(mixIdNameDict[mix_id])
-                            datalist = dy.getMixInfo(mix_id, 35, 0, configModel["increase"]["allmix"], key)
-                            if datalist is not None and datalist != []:
-                                modePath = os.path.join(userPath, mode)
-                                if not os.path.exists(modePath):
-                                    os.mkdir(modePath)
-                                dl.userDownload(awemeList=datalist, savePath=os.path.join(modePath, mix_file_name))
-                                print(f'[  提示  ]:合集 [{mixIdNameDict[mix_id]}] 中的作品下载完成\r\n')
-        elif key_type == "mix":
-            print("[  提示  ]:正在请求单个合集下作品\r\n")
-            datalist = dy.getMixInfo(key, 35, configModel["number"]["mix"], configModel["increase"]["mix"], "")
-            if datalist is not None and datalist != []:
-                mixname = utils.replaceStr(datalist[0]["mix_info"]["mix_name"])
-                mixPath = os.path.join(configModel["path"], "mix_" + mixname + "_" + key)
-                if not os.path.exists(mixPath):
-                    os.mkdir(mixPath)
-                dl.userDownload(awemeList=datalist, savePath=mixPath)
-        elif key_type == "music":
-            print("[  提示  ]:正在请求音乐(原声)下作品\r\n")
-            datalist = dy.getMusicInfo(key, 35, configModel["number"]["music"], configModel["increase"]["music"])
+def process_link(dy, dl, link):
+    """处理单个链接的下载逻辑"""
+    print("-" * 80)
+    print("[  提示  ]:正在请求的链接: " + link + "\r\n")
+    
+    url = dy.getShareLink(link)
+    key_type, key = dy.getKey(url)
+    
+    handlers = {
+        "user": handle_user_download,
+        "mix": handle_mix_download,
+        "music": handle_music_download,
+        "aweme": handle_aweme_download,
+        "live": handle_live_download
+    }
+    
+    handler = handlers.get(key_type)
+    if handler:
+        handler(dy, dl, key)
+    else:
+        print(f"[  警告  ]:未知的链接类型: {key_type}")
 
-            if datalist is not None and datalist != []:
-                musicname = utils.replaceStr(datalist[0]["music"]["title"])
-                musicPath = os.path.join(configModel["path"], "music_" + musicname + "_" + key)
-                if not os.path.exists(musicPath):
-                    os.mkdir(musicPath)
-                dl.userDownload(awemeList=datalist, savePath=musicPath)
-        elif key_type == "aweme":
-            print("[  提示  ]:正在请求单个作品\r\n")
-            datanew, dataraw = dy.getAwemeInfo(key)
-            if datanew is not None and datanew != {}:
-                datalist = [datanew]
-                awemePath = os.path.join(configModel["path"], "aweme")
-                if not os.path.exists(awemePath):
-                    os.mkdir(awemePath)
-                dl.userDownload(awemeList=datalist, savePath=awemePath)
-        elif key_type == "live":
-            print("[  提示  ]:正在进行直播解析\r\n")
-            live_json = dy.getLiveInfo(key)
-            if configModel["json"]:
-                livePath = os.path.join(configModel["path"], "live")
-                if not os.path.exists(livePath):
-                    os.mkdir(livePath)
-                live_file_name = utils.replaceStr(key + live_json["nickname"])
-                # 保存获取到json
-                print("[  提示  ]:正在保存获取到的信息到result.json\r\n")
-                with open(os.path.join(livePath, live_file_name + ".json"), "w", encoding='utf-8') as f:
-                    f.write(json.dumps(live_json, ensure_ascii=False, indent=2))
-                    f.close()
 
-    end = time.time()  # 结束时间
-    print('\n' + '[下载完成]:总耗时: %d分钟%d秒\n' % (int((end - start) / 60), ((end - start) % 60)))  # 输出下载用时时间
+def handle_user_download(dy, dl, key):
+    """处理用户主页下载"""
+    print("[  提示  ]:正在请求用户主页下作品\r\n")
+    data = dy.getUserDetailInfo(sec_uid=key)
+    nickname = ""
+    if data and data.get('user'):
+        nickname = utils.replaceStr(data['user']['nickname'])
+
+    userPath = os.path.join(configModel["path"], f"user_{nickname}_{key}")
+    os.makedirs(userPath, exist_ok=True)
+
+    for mode in configModel["mode"]:
+        print("-" * 80)
+        print(f"[  提示  ]:正在请求用户主页模式: {mode}\r\n")
+        
+        if mode in ('post', 'like'):
+            _handle_post_like_mode(dy, dl, key, mode, userPath)
+        elif mode == 'mix':
+            _handle_mix_mode(dy, dl, key, userPath)
+
+def _handle_post_like_mode(dy, dl, key, mode, userPath):
+    """处理发布/喜欢模式的下载"""
+    datalist = dy.getUserInfo(key, mode, 35, configModel["number"][mode], configModel["increase"][mode])
+    if not datalist:
+        return
+
+    modePath = os.path.join(userPath, mode)
+    os.makedirs(modePath, exist_ok=True)
+
+    want_data_list = [
+        data for data in datalist 
+        if configModel["start_time"] <= data["create_time"][:10] <= configModel["end_time"]
+    ]
+
+    if not want_data_list:
+        print("[  提示  ]:没有符合时间要求的数据\r\n")
+        return
+
+    dl.userDownload(awemeList=want_data_list, savePath=modePath)
+
+def _handle_mix_mode(dy, dl, key, userPath):
+    """处理合集模式的下载"""
+    mixIdNameDict = dy.getUserAllMixInfo(key, 35, configModel["number"]["allmix"])
+    if not mixIdNameDict:
+        return
+
+    modePath = os.path.join(userPath, "mix")
+    os.makedirs(modePath, exist_ok=True)
+
+    for mix_id, mix_name in mixIdNameDict.items():
+        print(f'[  提示  ]:正在下载合集 [{mix_name}] 中的作品\r\n')
+        mix_file_name = utils.replaceStr(mix_name)
+        datalist = dy.getMixInfo(mix_id, 35, 0, configModel["increase"]["allmix"], key)
+        
+        if datalist:
+            dl.userDownload(awemeList=datalist, savePath=os.path.join(modePath, mix_file_name))
+            print(f'[  提示  ]:合集 [{mix_name}] 中的作品下载完成\r\n')
+
+def handle_mix_download(dy, dl, key):
+    """处理单个合集下载"""
+    print("[  提示  ]:正在请求单个合集下作品\r\n")
+    datalist = dy.getMixInfo(key, 35, configModel["number"]["mix"], configModel["increase"]["mix"], "")
+    
+    if datalist:
+        mixname = utils.replaceStr(datalist[0]["mix_info"]["mix_name"])
+        mixPath = os.path.join(configModel["path"], f"mix_{mixname}_{key}")
+        os.makedirs(mixPath, exist_ok=True)
+        dl.userDownload(awemeList=datalist, savePath=mixPath)
+
+def handle_music_download(dy, dl, key):
+    """处理音乐作品下载"""
+    print("[  提示  ]:正在请求音乐(原声)下作品\r\n")
+    datalist = dy.getMusicInfo(key, 35, configModel["number"]["music"], configModel["increase"]["music"])
+    
+    if datalist:
+        musicname = utils.replaceStr(datalist[0]["music"]["title"])
+        musicPath = os.path.join(configModel["path"], f"music_{musicname}_{key}")
+        os.makedirs(musicPath, exist_ok=True)
+        dl.userDownload(awemeList=datalist, savePath=musicPath)
+
+def handle_aweme_download(dy, dl, key):
+    """处理单个作品下载"""
+    print("[  提示  ]:正在请求单个作品\r\n")
+    datanew, _ = dy.getAwemeInfo(key)
+    
+    if datanew:
+        awemePath = os.path.join(configModel["path"], "aweme")
+        os.makedirs(awemePath, exist_ok=True)
+        dl.userDownload(awemeList=[datanew], savePath=awemePath)
+
+def handle_live_download(dy, dl, key):
+    """处理直播下载"""
+    print("[  提示  ]:正在进行直播解析\r\n")
+    live_json = dy.getLiveInfo(key)
+    
+    if configModel["json"] and live_json:
+        livePath = os.path.join(configModel["path"], "live")
+        os.makedirs(livePath, exist_ok=True)
+        
+        live_file_name = utils.replaceStr(f"{key}{live_json['nickname']}")
+        json_path = os.path.join(livePath, f"{live_file_name}.json")
+        
+        print("[  提示  ]:正在保存获取到的信息到result.json\r\n")
+        with open(json_path, "w", encoding='utf-8') as f:
+            json.dump(live_json, f, ensure_ascii=False, indent=2)
 
 
 if __name__ == "__main__":
