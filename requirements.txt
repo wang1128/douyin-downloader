@@ -1,4 +1,20 @@
-requests==2.28.2
-pyinstaller==5.7.0
-tqdm==4.65.0
-PyYAML==6.0
+# 基础依赖
+requests>=2.31.0
+tqdm>=4.66.1
+PyYAML>=6.0.1
+sqlalchemy>=2.0.25
+
+# 异步支持（目前已注释相关代码，可选）
+# aiohttp>=3.9.1
+# asyncio>=3.4.3
+
+# 重试机制（目前已注释相关代码，可选）
+# tenacity>=8.2.3
+
+# 测试相关（可选）
+# pytest>=7.4.4
+# pytest-asyncio>=0.23.3
+
+# 其他可能需要的包
+python-dateutil>=2.8.2
+requests-toolbelt>=1.0.0
