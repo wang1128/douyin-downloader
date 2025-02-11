@@ -50,6 +50,20 @@ class Download(object):
                 os.remove(filepath)
             print("[  错误  ]:下载出错\r")
 
+    def _download_media(self, url: str, path: Path, desc: str) -> bool:
+        """通用下载方法"""
+        if path.exists():
+            return True
+        
+        try:
+            self.progressBarDownload(url, path, desc)
+            return True
+        except Exception as e:
+            logger.error(f"下载失败: {url} 错误: {str(e)}")
+            if path.exists():
+                path.unlink()
+            return False
+
     def awemeDownload(self, awemeDict: dict, savePath=os.getcwd()):
         if awemeDict is None:
             return
@@ -80,17 +94,12 @@ class Download(object):
             if awemeDict["awemeType"] == 0:
                 video_path = os.path.join(aweme_path, file_name + "_video.mp4")
 
-                if os.path.exists(video_path):
-                    pass
-                else:
-                    try:
-                        url = awemeDict["video"]["play_addr"]["url_list"][0]
-                        if url != "":
-                            self.isdwownload = False
-                            self.alltask.append(
-                                self.pool.submit(self.progressBarDownload, url, video_path, "[ 视频 ]:" + desc))
-                    except Exception as e:
-                        print("[  警告  ]:视频下载失败,请重试... 作品名: " + file_name + "\r\n")
+                if self._download_media(
+                    awemeDict["video"]["play_addr"]["url_list"][0],
+                    Path(video_path),
+                    f"[视频]{desc}"
+                ):
+                    logger.info(f"视频下载成功: {video_path}")
 
             # 下载 图集
             if awemeDict["awemeType"] == 1:

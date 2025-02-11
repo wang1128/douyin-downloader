@@ -8,6 +8,8 @@ import json
 import time
 import copy
 # from tenacity import retry, stop_after_attempt, wait_exponential
+from typing import Tuple, Optional
+from requests.exceptions import RequestException
 
 from apiproxy.douyin import douyin_headers
 from apiproxy.douyin.urls import Urls
@@ -35,7 +37,13 @@ class Douyin(object):
 
     # 得到 作品id 或者 用户id
     # 传入 url 支持 https://www.iesdouyin.com 与 https://v.douyin.com
-    def getKey(self, url):
+    def getKey(self, url: str) -> Tuple[Optional[str], Optional[str]]:
+        """获取资源标识
+        Args:
+            url: 抖音分享链接或网页URL
+        Returns:
+            (资源类型, 资源ID)
+        """
         key = None
         key_type = None
 
@@ -103,48 +111,58 @@ class Douyin(object):
 
     # 暂时注释掉装饰器
     # @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
-    def getAwemeInfo(self, aweme_id):
-        """获取作品信息"""
-        print('[  提示  ]:正在请求的作品 id = %s\r' % aweme_id)
-        if aweme_id is None:
-            return None
-
-        start = time.time()  # 开始时间
-        while True:
-            # 接口不稳定, 有时服务器不返回数据, 需要重新获取
+    def getAwemeInfo(self, aweme_id: str) -> dict:
+        """获取作品信息（带重试机制）"""
+        retries = 3
+        for attempt in range(retries):
             try:
-                # 单作品接口返回 'aweme_detail'
-                # 主页作品接口返回 'aweme_list'->['aweme_detail']
-                jx_url = self.urls.POST_DETAIL + utils.getXbogus(
-                    f'aweme_id={aweme_id}&device_platform=webapp&aid=6383')
+                print('[  提示  ]:正在请求的作品 id = %s\r' % aweme_id)
+                if aweme_id is None:
+                    return {}
 
-                raw = requests.get(url=jx_url, headers=douyin_headers).text
-                datadict = json.loads(raw)
-                if datadict is not None and datadict["status_code"] == 0:
-                    break
-            except Exception as e:
-                end = time.time()  # 结束时间
-                if end - start > self.timeout:
-                    print("[  提示  ]:重复请求该接口" + str(self.timeout) + "s, 仍然未获取到数据")
-                    return {}, {}
+                start = time.time()  # 开始时间
+                while True:
+                    # 接口不稳定, 有时服务器不返回数据, 需要重新获取
+                    try:
+                        # 单作品接口返回 'aweme_detail'
+                        # 主页作品接口返回 'aweme_list'->['aweme_detail']
+                        jx_url = self.urls.POST_DETAIL + utils.getXbogus(
+                            f'aweme_id={aweme_id}&device_platform=webapp&aid=6383')
+
+                        raw = requests.get(url=jx_url, headers=douyin_headers).text
+                        datadict = json.loads(raw)
+                        if datadict is not None and datadict["status_code"] == 0:
+                            break
+                    except Exception as e:
+                        end = time.time()  # 结束时间
+                        if end - start > self.timeout:
+                            print("[  提示  ]:重复请求该接口" + str(self.timeout) + "s, 仍然未获取到数据")
+                            return {}
 
 
-        # 清空self.awemeDict
-        self.result.clearDict(self.result.awemeDict)
+                # 清空self.awemeDict
+                self.result.clearDict(self.result.awemeDict)
 
-        # 默认为视频
-        awemeType = 0
-        try:
-            # datadict['aweme_detail']["images"] 不为 None 说明是图集
-            if datadict['aweme_detail']["images"] is not None:
-                awemeType = 1
-        except Exception as e:
-            print("[  警告  ]:接口中未找到 images\r")
+                # 默认为视频
+                awemeType = 0
+                try:
+                    # datadict['aweme_detail']["images"] 不为 None 说明是图集
+                    if datadict['aweme_detail']["images"] is not None:
+                        awemeType = 1
+                except Exception as e:
+                    print("[  警告  ]:接口中未找到 images\r")
 
-        # 转换成我们自己的格式
-        self.result.dataConvert(awemeType, self.result.awemeDict, datadict['aweme_detail'])
+                # 转换成我们自己的格式
+                self.result.dataConvert(awemeType, self.result.awemeDict, datadict['aweme_detail'])
 
-        return self.result.awemeDict, datadict
+                return self.result.awemeDict
+            except RequestException as e:
+                logger.warning(f"请求失败（尝试 {attempt+1}/{retries}）: {str(e)}")
+                time.sleep(2 ** attempt)
+            except KeyError as e:
+                logger.error(f"响应数据格式异常: {str(e)}")
+                break
+        return {}
 
     # 传入 url 支持 https://www.iesdouyin.com 与 https://v.douyin.com
     # mode : post | like 模式选择 like为用户点赞 post为用户发布

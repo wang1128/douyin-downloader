@@ -16,6 +16,7 @@ from apiproxy.douyin.douyin import Douyin
 from apiproxy.douyin.download import Download
 from apiproxy.douyin import douyin_headers
 from apiproxy.common import utils
+from utils import logger
 
 @dataclass
 class DownloadConfig:
@@ -161,6 +162,26 @@ def yamlConfig():
         print(f"[  警告  ]:配置文件解析出错: {str(e)}\r\n")
 
 
+def validate_config(config: dict) -> bool:
+    """验证配置有效性"""
+    required_keys = {
+        'link': list,
+        'path': str,
+        'thread': int
+    }
+    
+    for key, typ in required_keys.items():
+        if key not in config or not isinstance(config[key], typ):
+            logger.error(f"无效配置项: {key}")
+            return False
+            
+    if not all(isinstance(url, str) for url in config['link']):
+        logger.error("链接配置格式错误")
+        return False
+        
+    return True
+
+
 def main():
     start = time.time()
 
@@ -170,6 +191,9 @@ def main():
         update_config_from_args(args)
     else:
         yamlConfig()
+
+    if not validate_config(configModel):
+        return
 
     if not configModel["link"]:
         print("[  错误  ]:未设置下载链接")
