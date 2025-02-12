@@ -58,6 +58,14 @@ python DouYinCommand.py
 python DouYinCommand.py -C True -l "抖音分享链接" -p "下载路径"
 ```
 
+
+## 使用截图
+
+![DouYinCommand1](img/DouYinCommand1.png)
+![DouYinCommand2](img/DouYinCommand2.png)
+![DouYinCommand download](img/DouYinCommanddownload.jpg)
+![DouYinCommand download detail](img/DouYinCommanddownloaddetail.jpg)
+
 ## 📝 支持的链接类型
 
 - 作品分享链接：`https://v.douyin.com/xxx/`

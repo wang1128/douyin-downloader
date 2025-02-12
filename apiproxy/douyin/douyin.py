@@ -171,7 +171,7 @@ class Douyin(object):
 
     # 传入 url 支持 https://www.iesdouyin.com 与 https://v.douyin.com
     # mode : post | like 模式选择 like为用户点赞 post为用户发布
-    def getUserInfo(self, sec_uid, mode="post", count=35, number=0, increase=False):
+    def getUserInfo(self, sec_uid, mode="post", count=35, number=0, increase=False, start_time="", end_time=""):
         """获取用户信息
         Args:
             sec_uid: 用户ID
@@ -179,15 +179,28 @@ class Douyin(object):
             count: 每页数量
             number: 限制下载数量(0表示无限制)
             increase: 是否增量更新
+            start_time: 开始时间，格式：YYYY-MM-DD
+            end_time: 结束时间，格式：YYYY-MM-DD
         """
         if sec_uid is None:
             return None
 
+        # 处理时间范围
+        if end_time == "now":
+            end_time = time.strftime("%Y-%m-%d")
+        
+        if not start_time:
+            start_time = "1970-01-01"
+        if not end_time:
+            end_time = "2099-12-31"
+
+        self.console.print(f"[cyan]🕒 时间范围: {start_time} 至 {end_time}[/]")
+        
         max_cursor = 0
         awemeList = []
         total_fetched = 0
+        filtered_count = 0
         
-        # 使用rich显示整体进度
         with Progress(
             SpinnerColumn(),
             TextColumn("[progress.description]{task.description}"),
@@ -233,8 +246,18 @@ class Douyin(object):
                         description=f"[cyan]📥 已获取: {total_fetched}个作品"
                     )
 
-                    # 处理每个作品
+                    # 在处理作品时添加时间过滤
                     for aweme in datadict["aweme_list"]:
+                        create_time = time.strftime(
+                            "%Y-%m-%d", 
+                            time.localtime(int(aweme.get("create_time", 0)))
+                        )
+                        
+                        # 时间过滤
+                        if not (start_time <= create_time <= end_time):
+                            filtered_count += 1
+                            continue
+
                         # 数量限制检查
                         if number > 0 and len(awemeList) >= number:
                             self.console.print(f"[green]✅ 已达到限制数量: {number}[/]")
@@ -374,116 +397,97 @@ class Douyin(object):
         print('[   📺   ]:复制链接使用下载工具下载')
         return self.result.liveDict
 
-    def getMixInfo(self, mix_id: str, count=35, number=0, increase=False, sec_uid=''):
-        print('[  提示  ]:正在请求的合集 id = %s\r\n' % mix_id)
+    def getMixInfo(self, mix_id, count=35, number=0, increase=False, sec_uid="", start_time="", end_time=""):
+        """获取合集信息"""
         if mix_id is None:
             return None
-        if number <= 0:
-            numflag = False
-        else:
-            numflag = True
+
+        # 处理时间范围
+        if end_time == "now":
+            end_time = time.strftime("%Y-%m-%d")
+        
+        if not start_time:
+            start_time = "1970-01-01"
+        if not end_time:
+            end_time = "2099-12-31"
+
+        self.console.print(f"[cyan]🕒 时间范围: {start_time} 至 {end_time}[/]")
 
         cursor = 0
         awemeList = []
-        increaseflag = False
-        numberis0 = False
+        total_fetched = 0
+        filtered_count = 0
 
-        print("[  提示  ]:正在获取合集下的所有作品数据请稍后...\r")
-        print("[  提示  ]:会进行多次请求，等待时间较长...\r\n")
-        times = 0
-        while True:
-            times = times + 1
-            print("[  提示  ]:正在对 [合集] 进行第 " + str(times) + " 次请求...\r")
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            BarColumn(),
+            TaskProgressColumn(),
+            TimeRemainingColumn(),
+            console=self.console,
+            transient=True
+        ) as progress:
+            fetch_task = progress.add_task(
+                "[cyan]📥 正在获取合集作品...",
+                total=None
+            )
 
-            start = time.time()  # 开始时间
-            while True:
-                # 接口不稳定, 有时服务器不返回数据, 需要重新获取
+            while True:  # 外层循环
                 try:
                     url = self.urls.USER_MIX + utils.getXbogus(
                         f'mix_id={mix_id}&cursor={cursor}&count={count}&device_platform=webapp&aid=6383')
 
                     res = requests.get(url=url, headers=douyin_headers)
                     datadict = json.loads(res.text)
-                    print('[  提示  ]:本次请求返回 ' + str(len(datadict["aweme_list"])) + ' 条数据\r')
 
-                    if datadict is not None:
+                    if not datadict:
+                        self.console.print("[red]❌ 获取数据失败[/]")
                         break
+
+                    for aweme in datadict["aweme_list"]:
+                        create_time = time.strftime(
+                            "%Y-%m-%d",
+                            time.localtime(int(aweme.get("create_time", 0)))
+                        )
+
+                        # 时间过滤
+                        if not (start_time <= create_time <= end_time):
+                            filtered_count += 1
+                            continue
+
+                        # 数量限制检查
+                        if number > 0 and len(awemeList) >= number:
+                            return awemeList  # 使用return替代break
+
+                        # 增量更新检查
+                        if self.database:
+                            if self.db.get_mix(sec_uid=sec_uid, mix_id=mix_id, aweme_id=aweme['aweme_id']):
+                                if increase and aweme['is_top'] == 0:
+                                    return awemeList  # 使用return替代break
+                            else:
+                                self.db.insert_mix(sec_uid=sec_uid, mix_id=mix_id, aweme_id=aweme['aweme_id'], data=aweme)
+
+                        # 转换数据
+                        aweme_data = self._convert_aweme_data(aweme)
+                        if aweme_data:
+                            awemeList.append(aweme_data)
+
+                    # 检查是否还有更多数据
+                    if not datadict.get("has_more"):
+                        self.console.print(f"[green]✅ 已获取全部作品[/]")
+                        break
+
+                    # 更新游标
+                    cursor = datadict.get("cursor", 0)
+                    total_fetched += len(datadict["aweme_list"])
+                    progress.update(fetch_task, description=f"[cyan]📥 已获取: {total_fetched}个作品")
+
                 except Exception as e:
-                    end = time.time()  # 结束时间
-                    if end - start > self.timeout:
-                        print("[  提示  ]:重复请求该接口" + str(self.timeout) + "s, 仍然未获取到数据")
-                        return awemeList
-
-
-            for aweme in datadict["aweme_list"]:
-                if self.database:
-                    # 退出条件
-                    if increase is False and numflag and numberis0:
-                        break
-                    if increase and numflag and numberis0 and increaseflag:
-                        break
-                    # 增量更新, 找到非置顶的最新的作品发布时间
-                    if self.db.get_mix(sec_uid=sec_uid, mix_id=mix_id, aweme_id=aweme['aweme_id']) is not None:
-                        if increase and aweme['is_top'] == 0:
-                            increaseflag = True
-                    else:
-                        self.db.insert_mix(sec_uid=sec_uid, mix_id=mix_id, aweme_id=aweme['aweme_id'], data=aweme)
-
-                    # 退出条件
-                    if increase and numflag is False and increaseflag:
-                        break
-                    if increase and numflag and numberis0 and increaseflag:
-                        break
-                else:
-                    if numflag and numberis0:
-                        break
-
-                if numflag:
-                    number -= 1
-                    if number == 0:
-                        numberis0 = True
-
-                # 清空self.awemeDict
-                self.result.clearDict(self.result.awemeDict)
-
-                # 默认为视频
-                awemeType = 0
-                try:
-                    if aweme["images"] is not None:
-                        awemeType = 1
-                except Exception as e:
-                    print("[  警告  ]:接口中未找到 images\r")
-
-                # 转换成我们自己的格式
-                self.result.dataConvert(awemeType, self.result.awemeDict, aweme)
-
-                if self.result.awemeDict is not None and self.result.awemeDict != {}:
-                    awemeList.append(copy.deepcopy(self.result.awemeDict))
-
-            if self.database:
-                if increase and numflag is False and increaseflag:
-                    print("\r\n[  提示  ]: [合集] 下作品增量更新数据获取完成...\r\n")
-                    break
-                elif increase is False and numflag and numberis0:
-                    print("\r\n[  提示  ]: [合集] 下指定数量作品数据获取完成...\r\n")
-                    break
-                elif increase and numflag and numberis0 and increaseflag:
-                    print("\r\n[  提示  ]: [合集] 下指定数量作品数据获取完成, 增量更新数据获取完成...\r\n")
-                    break
-            else:
-                if numflag and numberis0:
-                    print("\r\n[  提示  ]: [合集] 下指定数量作品数据获取完成...\r\n")
+                    self.console.print(f"[red]❌ 获取作品列表出错: {str(e)}[/]")
                     break
 
-            # 更新 max_cursor
-            cursor = datadict["cursor"]
-
-            # 退出条件
-            if datadict["has_more"] == 0 or datadict["has_more"] == False:
-                print("\r\n[  提示  ]:[合集] 下所有作品数据获取完成...\r\n")
-                break
-            else:
-                print("\r\n[  提示  ]:[合集] 第 " + str(times) + " 次请求成功...\r\n")
+        if filtered_count > 0:
+            self.console.print(f"[yellow]⚠️  已过滤 {filtered_count} 个不在时间范围内的作品[/]")
 
         return awemeList
 

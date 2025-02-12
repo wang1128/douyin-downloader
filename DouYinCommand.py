@@ -273,23 +273,23 @@ def handle_user_download(dy, dl, key):
 
 def _handle_post_like_mode(dy, dl, key, mode, userPath):
     """处理发布/喜欢模式的下载"""
-    datalist = dy.getUserInfo(key, mode, 35, configModel["number"][mode], configModel["increase"][mode])
+    datalist = dy.getUserInfo(
+        key, 
+        mode, 
+        35, 
+        configModel["number"][mode], 
+        configModel["increase"][mode],
+        start_time=configModel.get("start_time", ""),
+        end_time=configModel.get("end_time", "")
+    )
+    
     if not datalist:
         return
-
+        
     modePath = os.path.join(userPath, mode)
     os.makedirs(modePath, exist_ok=True)
-
-    want_data_list = [
-        data for data in datalist 
-        if configModel["start_time"] <= data["create_time"][:10] <= configModel["end_time"]
-    ]
-
-    if not want_data_list:
-        print("[  提示  ]:没有符合时间要求的数据\r\n")
-        return
-
-    dl.userDownload(awemeList=want_data_list, savePath=modePath)
+    
+    dl.userDownload(awemeList=datalist, savePath=modePath)
 
 def _handle_mix_mode(dy, dl, key, userPath):
     """处理合集模式的下载"""
@@ -303,7 +303,15 @@ def _handle_mix_mode(dy, dl, key, userPath):
     for mix_id, mix_name in mixIdNameDict.items():
         print(f'[  提示  ]:正在下载合集 [{mix_name}] 中的作品\r\n')
         mix_file_name = utils.replaceStr(mix_name)
-        datalist = dy.getMixInfo(mix_id, 35, 0, configModel["increase"]["allmix"], key)
+        datalist = dy.getMixInfo(
+            mix_id, 
+            35, 
+            0, 
+            configModel["increase"]["allmix"], 
+            key,
+            start_time=configModel.get("start_time", ""),
+            end_time=configModel.get("end_time", "")
+        )
         
         if datalist:
             dl.userDownload(awemeList=datalist, savePath=os.path.join(modePath, mix_file_name))
@@ -312,7 +320,15 @@ def _handle_mix_mode(dy, dl, key, userPath):
 def handle_mix_download(dy, dl, key):
     """处理单个合集下载"""
     print("[  提示  ]:正在请求单个合集下作品\r\n")
-    datalist = dy.getMixInfo(key, 35, configModel["number"]["mix"], configModel["increase"]["mix"], "")
+    datalist = dy.getMixInfo(
+        key, 
+        35, 
+        configModel["number"]["mix"], 
+        configModel["increase"]["mix"], 
+        "",
+        start_time=configModel.get("start_time", ""),
+        end_time=configModel.get("end_time", "")
+    )
     
     if datalist:
         mixname = utils.replaceStr(datalist[0]["mix_info"]["mix_name"])
