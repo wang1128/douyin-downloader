@@ -10,6 +10,8 @@ import copy
 # from tenacity import retry, stop_after_attempt, wait_exponential
 from typing import Tuple, Optional
 from requests.exceptions import RequestException
+from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn, TimeRemainingColumn
+from rich.console import Console
 
 from apiproxy.douyin import douyin_headers
 from apiproxy.douyin.urls import Urls
@@ -18,6 +20,8 @@ from apiproxy.douyin.database import DataBase
 from apiproxy.common import utils
 from utils import logger
 
+# 创建全局console实例
+console = Console()
 
 class Douyin(object):
 
@@ -29,6 +33,7 @@ class Douyin(object):
             self.db = DataBase()
         # 用于设置重复请求某个接口的最大时间
         self.timeout = 10
+        self.console = Console()  # 也可以在实例中创建console
 
     # 从分享链接中提取网址
     def getShareLink(self, string):
@@ -167,30 +172,39 @@ class Douyin(object):
     # 传入 url 支持 https://www.iesdouyin.com 与 https://v.douyin.com
     # mode : post | like 模式选择 like为用户点赞 post为用户发布
     def getUserInfo(self, sec_uid, mode="post", count=35, number=0, increase=False):
-        print('[  提示  ]:正在请求的用户 id = %s\r\n' % sec_uid)
+        """获取用户信息
+        Args:
+            sec_uid: 用户ID
+            mode: 模式(post:发布/like:点赞)
+            count: 每页数量
+            number: 限制下载数量(0表示无限制)
+            increase: 是否增量更新
+        """
         if sec_uid is None:
             return None
-        if number <= 0:
-            numflag = False
-        else:
-            numflag = True
 
         max_cursor = 0
         awemeList = []
-        increaseflag = False
-        numberis0 = False
-
-        print("[  提示  ]:正在获取所有作品数据请稍后...\r")
-        print("[  提示  ]:会进行多次请求，等待时间较长...\r\n")
-        times = 0
-        while True:
-            times = times + 1
-            print("[  提示  ]:正在对 [主页] 进行第 " + str(times) + " 次请求...\r")
-
-            start = time.time()  # 开始时间
+        total_fetched = 0
+        
+        # 使用rich显示整体进度
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            BarColumn(),
+            TaskProgressColumn(),
+            TimeRemainingColumn(),
+            console=self.console,
+            transient=True
+        ) as progress:
+            fetch_task = progress.add_task(
+                f"[cyan]📥 正在获取{mode}作品列表...", 
+                total=None  # 总数未知，使用无限进度条
+            )
+            
             while True:
-                # 接口不稳定, 有时服务器不返回数据, 需要重新获取
                 try:
+                    # 构建请求URL
                     if mode == "post":
                         url = self.urls.USER_POST + utils.getXbogus(
                             f'sec_user_id={sec_uid}&count={count}&max_cursor={max_cursor}&device_platform=webapp&aid=6383')
@@ -198,100 +212,81 @@ class Douyin(object):
                         url = self.urls.USER_FAVORITE_A + utils.getXbogus(
                             f'sec_user_id={sec_uid}&count={count}&max_cursor={max_cursor}&device_platform=webapp&aid=6383')
                     else:
-                        print("[  错误  ]:模式选择错误, 仅支持post、like、mix, 请检查后重新运行!\r")
+                        self.console.print("[red]❌ 模式选择错误，仅支持post、like[/]")
                         return None
 
+                    # 发送请求
                     res = requests.get(url=url, headers=douyin_headers)
                     datadict = json.loads(res.text)
-                    print('[  提示  ]:本次请求返回 ' + str(len(datadict["aweme_list"])) + ' 条数据\r')
-
-                    if datadict is not None and datadict["status_code"] == 0:
+                    
+                    # 处理返回数据
+                    if not datadict or datadict.get("status_code") != 0:
+                        self.console.print(f"[red]❌ API请求失败: {datadict.get('status_msg', '未知错误')}[/]")
                         break
+                        
+                    current_count = len(datadict["aweme_list"])
+                    total_fetched += current_count
+                    
+                    # 更新进度显示
+                    progress.update(
+                        fetch_task, 
+                        description=f"[cyan]📥 已获取: {total_fetched}个作品"
+                    )
+
+                    # 处理每个作品
+                    for aweme in datadict["aweme_list"]:
+                        # 数量限制检查
+                        if number > 0 and len(awemeList) >= number:
+                            self.console.print(f"[green]✅ 已达到限制数量: {number}[/]")
+                            return awemeList
+                            
+                        # 增量更新检查
+                        if self.database:
+                            if mode == "post":
+                                if self.db.get_user_post(sec_uid=sec_uid, aweme_id=aweme['aweme_id']):
+                                    if increase and aweme['is_top'] == 0:
+                                        self.console.print("[green]✅ 增量更新完成[/]")
+                                        return awemeList
+                                else:
+                                    self.db.insert_user_post(sec_uid=sec_uid, aweme_id=aweme['aweme_id'], data=aweme)
+                            elif mode == "like":
+                                if self.db.get_user_like(sec_uid=sec_uid, aweme_id=aweme['aweme_id']):
+                                    if increase and aweme['is_top'] == 0:
+                                        self.console.print("[green]✅ 增量更新完成[/]")
+                                        return awemeList
+                            else:
+                                self.console.print("[red]❌ 模式选择错误，仅支持post、like[/]")
+                                return None
+
+                        # 转换数据格式
+                        aweme_data = self._convert_aweme_data(aweme)
+                        if aweme_data:
+                            awemeList.append(aweme_data)
+
+                    # 检查是否还有更多数据
+                    if not datadict["has_more"]:
+                        self.console.print(f"[green]✅ 已获取全部作品: {total_fetched}个[/]")
+                        break
+                    
+                    # 更新游标
+                    max_cursor = datadict["max_cursor"]
+                    
                 except Exception as e:
-                    end = time.time()  # 结束时间
-                    if end - start > self.timeout:
-                        print("[  提示  ]:重复请求该接口" + str(self.timeout) + "s, 仍然未获取到数据")
-                        return awemeList
-
-
-            for aweme in datadict["aweme_list"]:
-                if self.database:
-                    # 退出条件
-                    if increase is False and numflag and numberis0:
-                        break
-                    if increase and numflag and numberis0 and increaseflag:
-                        break
-                    # 增量更新, 找到非置顶的最新的作品发布时间
-                    if mode == "post":
-                        if self.db.get_user_post(sec_uid=sec_uid, aweme_id=aweme['aweme_id']) is not None:
-                            if increase and aweme['is_top'] == 0:
-                                increaseflag = True
-                        else:
-                            self.db.insert_user_post(sec_uid=sec_uid, aweme_id=aweme['aweme_id'], data=aweme)
-                    elif mode == "like":
-                        if self.db.get_user_like(sec_uid=sec_uid, aweme_id=aweme['aweme_id']) is not None:
-                            if increase and aweme['is_top'] == 0:
-                                increaseflag = True
-                        else:
-                            self.db.insert_user_like(sec_uid=sec_uid, aweme_id=aweme['aweme_id'], data=aweme)
-
-                    # 退出条件
-                    if increase and numflag is False and increaseflag:
-                        break
-                    if increase and numflag and numberis0 and increaseflag:
-                        break
-                else:
-                    if numflag and numberis0:
-                        break
-
-                if numflag:
-                    number -= 1
-                    if number == 0:
-                        numberis0 = True
-
-                # 清空self.awemeDict
-                self.result.clearDict(self.result.awemeDict)
-
-                # 默认为视频
-                awemeType = 0
-                try:
-                    if aweme["images"] is not None:
-                        awemeType = 1
-                except Exception as e:
-                    print("[  警告  ]:接口中未找到 images\r")
-
-                # 转换成我们自己的格式
-                self.result.dataConvert(awemeType, self.result.awemeDict, aweme)
-
-                if self.result.awemeDict is not None and self.result.awemeDict != {}:
-                    awemeList.append(copy.deepcopy(self.result.awemeDict))
-
-            if self.database:
-                if increase and numflag is False and increaseflag:
-                    print("\r\n[  提示  ]: [主页] 下作品增量更新数据获取完成...\r\n")
+                    self.console.print(f"[red]❌ 获取作品列表出错: {str(e)}[/]")
                     break
-                elif increase is False and numflag and numberis0:
-                    print("\r\n[  提示  ]: [主页] 下指定数量作品数据获取完成...\r\n")
-                    break
-                elif increase and numflag and numberis0 and increaseflag:
-                    print("\r\n[  提示  ]: [主页] 下指定数量作品数据获取完成, 增量更新数据获取完成...\r\n")
-                    break
-            else:
-                if numflag and numberis0:
-                    print("\r\n[  提示  ]: [主页] 下指定数量作品数据获取完成...\r\n")
-                    break
-
-            # 更新 max_cursor
-            max_cursor = datadict["max_cursor"]
-
-            # 退出条件
-            if datadict["has_more"] == 0 or datadict["has_more"] == False:
-                print("\r\n[  提示  ]: [主页] 下所有作品数据获取完成...\r\n")
-                break
-            else:
-                print("\r\n[  提示  ]:[主页] 第 " + str(times) + " 次请求成功...\r\n")
 
         return awemeList
+
+    def _convert_aweme_data(self, aweme):
+        """转换作品数据格式"""
+        try:
+            self.result.clearDict(self.result.awemeDict)
+            aweme_type = 1 if aweme.get("images") else 0
+            self.result.dataConvert(aweme_type, self.result.awemeDict, aweme)
+            return copy.deepcopy(self.result.awemeDict)
+        except Exception as e:
+            logger.error(f"数据转换错误: {str(e)}")
+            return None
 
     def getLiveInfo(self, web_rid: str):
         print('[  提示  ]:正在请求的直播间 id = %s\r\n' % web_rid)

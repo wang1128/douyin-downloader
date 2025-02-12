@@ -154,7 +154,7 @@ def yamlConfig():
             
         # 特殊处理end_time
         if configDict.get("end_time") == "now":
-            configModel["end_time"] = time.strftime("%Y-%m-%d", time.localtime())
+                configModel["end_time"] = time.strftime("%Y-%m-%d", time.localtime())
             
     except FileNotFoundError:
         print("[  警告  ]:未找到配置文件config.yml\r\n")
@@ -324,7 +324,7 @@ def handle_music_download(dy, dl, key):
     """处理音乐作品下载"""
     print("[  提示  ]:正在请求音乐(原声)下作品\r\n")
     datalist = dy.getMusicInfo(key, 35, configModel["number"]["music"], configModel["increase"]["music"])
-    
+
     if datalist:
         musicname = utils.replaceStr(datalist[0]["music"]["title"])
         musicPath = os.path.join(configModel["path"], f"music_{musicname}_{key}")
