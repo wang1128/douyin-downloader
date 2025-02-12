@@ -51,122 +51,101 @@ class Download(object):
             print("[  错误  ]:下载出错\r")
 
     def _download_media(self, url: str, path: Path, desc: str) -> bool:
-        """通用下载方法"""
+        """通用下载方法，处理所有类型的媒体下载"""
         if path.exists():
+            logger.info(f"文件已存在，跳过下载: {path}")
             return True
-        
+            
         try:
-            self.progressBarDownload(url, path, desc)
+            response = requests.get(url, stream=True, headers=douyin_headers)
+            if response.status_code != 200:
+                logger.error(f"下载失败，状态码: {response.status_code}, URL: {url}")
+                return False
+                
+            total_size = int(response.headers.get('content-length', 0))
+            with open(path, 'wb') as file, tqdm(
+                total=total_size,
+                unit='iB',
+                unit_scale=True,
+                unit_divisor=1024,
+                desc=desc
+            ) as bar:
+                for data in response.iter_content(chunk_size=1024):
+                    size = file.write(data)
+                    bar.update(size)
             return True
+            
         except Exception as e:
-            logger.error(f"下载失败: {url} 错误: {str(e)}")
+            logger.error(f"下载出错: {url} 错误: {str(e)}")
             if path.exists():
                 path.unlink()
             return False
 
-    def awemeDownload(self, awemeDict: dict, savePath=os.getcwd()):
-        if awemeDict is None:
+    def awemeDownload(self, awemeDict: dict, savePath: Path) -> None:
+        """下载单个作品的所有内容"""
+        if not awemeDict:
+            logger.warning("无效的作品数据")
             return
-        if not os.path.exists(savePath):
-            os.mkdir(savePath)
-
+            
         try:
-            # 使用作品 创建时间+描述 当文件夹
-            file_name = awemeDict["create_time"] + "_" + utils.replaceStr(awemeDict["desc"])
-            if self.folderstyle:
-                aweme_path = os.path.join(savePath, file_name)
-                if not os.path.exists(aweme_path):
-                    os.mkdir(aweme_path)
-            else:
-                aweme_path = savePath
-
-            # 保存获取到的字典信息
+            # 创建保存目录
+            save_path = Path(savePath)
+            save_path.mkdir(parents=True, exist_ok=True)
+            
+            # 构建文件名
+            file_name = f"{awemeDict['create_time']}_{utils.replaceStr(awemeDict['desc'])}"
+            aweme_path = save_path / file_name if self.folderstyle else save_path
+            aweme_path.mkdir(exist_ok=True)
+            
+            # 保存JSON数据
             if self.resjson:
-                try:
-                    with open(os.path.join(aweme_path, file_name + "_result.json"), "w", encoding='utf-8') as f:
-                        f.write(json.dumps(awemeDict, ensure_ascii=False, indent=2))
-                        f.close()
-                except Exception as e:
-                    print("[  错误  ]:保存 result.json 失败... 作品名: " + file_name + "\r\n")
-
+                self._save_json(aweme_path / f"{file_name}_result.json", awemeDict)
+                
+            # 下载媒体文件
             desc = file_name[:30]
-            # 下载  视频
-            if awemeDict["awemeType"] == 0:
-                video_path = os.path.join(aweme_path, file_name + "_video.mp4")
-
-                if self._download_media(
-                    awemeDict["video"]["play_addr"]["url_list"][0],
-                    Path(video_path),
-                    f"[视频]{desc}"
-                ):
-                    logger.info(f"视频下载成功: {video_path}")
-
-            # 下载 图集
-            if awemeDict["awemeType"] == 1:
-                for ind, image in enumerate(awemeDict["images"]):
-                    image_path = os.path.join(aweme_path, file_name + "_image_" + str(ind) + ".jpeg")
-                    if os.path.exists(image_path):
-                        pass
-                    else:
-                        try:
-                            url = image["url_list"][0]
-                            if url != "":
-                                self.isdwownload = False
-                                self.alltask.append(
-                                    self.pool.submit(self.progressBarDownload, url, image_path, "[ 图集 ]:" + desc))
-                        except Exception as e:
-                            print("[  警告  ]:图片下载失败,请重试... 作品名: " + file_name + "\r\n")
-
-            # 下载  音乐
-            if self.music:
-                music_name = utils.replaceStr(awemeDict["music"]["title"])
-                music_path = os.path.join(aweme_path, file_name + "_music_" + music_name + ".mp3")
-
-                if os.path.exists(music_path):
-                    pass
-                else:
-                    try:
-                        url = awemeDict["music"]["play_url"]["url_list"][0]
-                        if url != "":
-                            self.isdwownload = False
-                            self.alltask.append(
-                                self.pool.submit(self.progressBarDownload, url, music_path, "[ 原声 ]:" + desc))
-                    except Exception as e:
-                        print("[  警告  ]:音乐(原声)下载失败,请重试... 作品名: " + file_name + "\r\n")
-
-            # 下载  cover
-            if self.cover and awemeDict["awemeType"] == 0:
-                cover_path = os.path.join(aweme_path, file_name + "_cover.jpeg")
-
-                if os.path.exists(cover_path):
-                    pass
-                else:
-                    try:
-                        url = awemeDict["video"]["cover"]["url_list"][0]
-                        if url != "":
-                            self.isdwownload = False
-                            self.alltask.append(
-                                self.pool.submit(self.progressBarDownload, url, cover_path, "[ 封面 ]:" + desc))
-                    except Exception as e:
-                        print("[  警告  ]:cover下载失败,请重试... 作品名: " + file_name + "\r\n")
-
-            # 下载  avatar
-            if self.avatar:
-                avatar_path = os.path.join(aweme_path, file_name + "_avatar.jpeg")
-
-                if os.path.exists(avatar_path):
-                    pass
-                else:
-                    try:
-                        url = awemeDict["author"]["avatar"]["url_list"][0]
-                        if url != "":
-                            self.isdwownload = False
-                            self.alltask.append(
-                                self.pool.submit(self.progressBarDownload, url, avatar_path, "[ 头像 ]:" + desc))
-                    except Exception as e:
-                        print("[  警告  ]:avatar下载失败,请重试... 作品名: " + file_name + "\r\n")
+            self._download_media_files(awemeDict, aweme_path, file_name, desc)
+                
         except Exception as e:
-            print("[  错误  ]:下载作品时出错\r\n")
+            logger.error(f"处理作品时出错: {str(e)}")
+
+    def _save_json(self, path: Path, data: dict) -> None:
+        """保存JSON数据"""
+        try:
+            with open(path, "w", encoding='utf-8') as f:
+                json.dump(data, ensure_ascii=False, indent=2, fp=f)
+        except Exception as e:
+            logger.error(f"保存JSON失败: {path}, 错误: {str(e)}")
+
+    def _download_media_files(self, aweme: dict, path: Path, name: str, desc: str) -> None:
+        """下载所有媒体文件"""
+        # 下载视频或图集
+        if aweme["awemeType"] == 0:  # 视频
+            video_path = path / f"{name}_video.mp4"
+            if url := aweme.get("video", {}).get("play_addr", {}).get("url_list", [None])[0]:
+                self._download_media(url, video_path, f"[视频]{desc}")
+        elif aweme["awemeType"] == 1:  # 图集
+            for i, image in enumerate(aweme.get("images", [])):
+                if url := image.get("url_list", [None])[0]:
+                    image_path = path / f"{name}_image_{i}.jpeg"
+                    self._download_media(url, image_path, f"[图集]{desc}")
+
+        # 下载音乐
+        if self.music and (url := aweme.get("music", {}).get("play_url", {}).get("url_list", [None])[0]):
+            music_name = utils.replaceStr(aweme["music"]["title"])
+            music_path = path / f"{name}_music_{music_name}.mp3"
+            self._download_media(url, music_path, f"[音乐]{desc}")
+
+        # 下载封面
+        if self.cover and aweme["awemeType"] == 0:
+            if url := aweme.get("video", {}).get("cover", {}).get("url_list", [None])[0]:
+                cover_path = path / f"{name}_cover.jpeg"
+                self._download_media(url, cover_path, f"[封面]{desc}")
+
+        # 下载头像
+        if self.avatar:
+            if url := aweme.get("author", {}).get("avatar", {}).get("url_list", [None])[0]:
+                avatar_path = path / f"{name}_avatar.jpeg"
+                self._download_media(url, avatar_path, f"[头像]{desc}")
 
     def userDownload(self, awemeList: List[dict], savePath: Path):
         if awemeList is None:
