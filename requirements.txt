@@ -3,6 +3,7 @@ requests>=2.31.0
 tqdm>=4.66.1
 PyYAML>=6.0.1
 sqlalchemy>=2.0.25
+rich>=13.7.0
 
 # 异步支持（目前已注释相关代码，可选）
 # aiohttp>=3.9.1

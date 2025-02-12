@@ -13,11 +13,17 @@ from pathlib import Path
 # import asyncio  # 暂时注释掉
 # import aiohttp  # 暂时注释掉
 import logging
+from rich.console import Console
+from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn, TimeRemainingColumn
+from rich.panel import Panel
+from rich.text import Text
+from rich import print as rprint
 
 from apiproxy.douyin import douyin_headers
 from apiproxy.common import utils
 
 logger = logging.getLogger("douyin_downloader")
+console = Console()
 
 class Download(object):
     def __init__(self, thread=5, music=True, cover=True, avatar=True, resjson=True, folderstyle=True):
@@ -27,6 +33,15 @@ class Download(object):
         self.avatar = avatar
         self.resjson = resjson
         self.folderstyle = folderstyle
+        self.console = Console()
+        self.progress = Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            BarColumn(),
+            TaskProgressColumn(),
+            TimeRemainingColumn(),
+            transient=True  # 添加这个参数，进度条完成后自动消失
+        )
 
     def progressBarDownload(self, url, filepath, desc):
         response = requests.get(url, stream=True, headers=douyin_headers)
@@ -53,30 +68,30 @@ class Download(object):
     def _download_media(self, url: str, path: Path, desc: str) -> bool:
         """通用下载方法，处理所有类型的媒体下载"""
         if path.exists():
-            logger.info(f"文件已存在，跳过下载: {path}")
+            self.console.print(f"[cyan]⏭️  跳过已存在: {desc}[/]")
             return True
             
         try:
             response = requests.get(url, stream=True, headers=douyin_headers)
             if response.status_code != 200:
-                logger.error(f"下载失败，状态码: {response.status_code}, URL: {url}")
+                self.console.print(f"[red]❌ 下载失败: {desc} (状态码: {response.status_code})[/]")
                 return False
                 
             total_size = int(response.headers.get('content-length', 0))
-            with open(path, 'wb') as file, tqdm(
-                total=total_size,
-                unit='iB',
-                unit_scale=True,
-                unit_divisor=1024,
-                desc=desc
-            ) as bar:
-                for data in response.iter_content(chunk_size=1024):
-                    size = file.write(data)
-                    bar.update(size)
+            
+            with self.progress:
+                task = self.progress.add_task(f"[cyan]⬇️  {desc}", total=total_size)
+                
+                with open(path, 'wb') as file:
+                    for data in response.iter_content(chunk_size=1024):
+                        size = file.write(data)
+                        self.progress.update(task, advance=size)
+                        
+            self.console.print(f"[green]✅ 完成下载: {desc}[/]")
             return True
             
         except Exception as e:
-            logger.error(f"下载出错: {url} 错误: {str(e)}")
+            self.console.print(f"[red]❌ 下载错误: {desc}\n   {str(e)}[/]")
             if path.exists():
                 path.unlink()
             return False
@@ -148,38 +163,59 @@ class Download(object):
                 self._download_media(url, avatar_path, f"[头像]{desc}")
 
     def userDownload(self, awemeList: List[dict], savePath: Path):
-        if awemeList is None:
+        if not awemeList:
+            self.console.print("[yellow]⚠️  没有找到可下载的内容[/]")
             return
-        if not os.path.exists(savePath):
-            os.mkdir(savePath)
 
-        self.alltask = []
-        self.pool = ThreadPoolExecutor(max_workers=self.thread)
+        save_path = Path(savePath)
+        save_path.mkdir(parents=True, exist_ok=True)
 
-        start = time.time()  # 开始时间
+        start_time = time.time()
+        total_count = len(awemeList)
+        success_count = 0
+        
+        # 显示下载信息面板
+        self.console.print(Panel(
+            Text.assemble(
+                ("下载配置\n", "bold cyan"),
+                (f"总数: {total_count} 个作品\n", "cyan"),
+                (f"线程: {self.thread}\n", "cyan"),
+                (f"保存路径: {save_path}\n", "cyan"),
+            ),
+            title="抖音下载器",
+            border_style="cyan"
+        ))
 
-        with tqdm(total=len(awemeList), desc="下载进度") as pbar:
+        with self.progress:
+            download_task = self.progress.add_task(
+                "[cyan]📥 批量下载进度", 
+                total=total_count
+            )
+            
             for aweme in awemeList:
-                self.awemeDownload(awemeDict=aweme, savePath=savePath)
-                pbar.update(1)
+                try:
+                    self.awemeDownload(awemeDict=aweme, savePath=save_path)
+                    success_count += 1
+                    self.progress.update(download_task, advance=1)
+                except Exception as e:
+                    self.console.print(f"[red]❌ 下载失败: {str(e)}[/]")
 
-        wait(self.alltask, return_when=ALL_COMPLETED)
-
-        # 检查下载是否完成
-        while True:
-            print("[  提示  ]:正在检查下载是否完成...")
-            self.isdwownload = True
-            # 下载上一步失败的
-            for aweme in awemeList:
-                self.awemeDownload(awemeDict=aweme, savePath=savePath)
-
-            wait(self.alltask, return_when=ALL_COMPLETED)
-
-            if self.isdwownload:
-                break
-
-        end = time.time()  # 结束时间
-        print('\n' + '[下载完成]:耗时: %d分钟%d秒\n' % (int((end - start) / 60), ((end - start) % 60)))  # 输出下载用时时间
+        # 显示下载完成统计
+        end_time = time.time()
+        duration = end_time - start_time
+        minutes = int(duration // 60)
+        seconds = int(duration % 60)
+        
+        self.console.print(Panel(
+            Text.assemble(
+                ("下载完成\n", "bold green"),
+                (f"成功: {success_count}/{total_count}\n", "green"),
+                (f"用时: {minutes}分{seconds}秒\n", "green"),
+                (f"保存位置: {save_path}\n", "green"),
+            ),
+            title="下载统计",
+            border_style="green"
+        ))
 
     # 暂时注释掉异步下载相关的方法
     '''
