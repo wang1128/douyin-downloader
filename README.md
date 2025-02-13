@@ -58,6 +58,9 @@ python DouYinCommand.py
 python DouYinCommand.py -C True -l "抖音分享链接" -p "下载路径"
 ```
 
+## 使用交流群
+
+![fuye](img/fuye.png)
 
 ## 使用截图
 
