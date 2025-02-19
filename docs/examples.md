@@ -151,4 +151,26 @@ folderstyle: true  # 每个作品创建独立文件夹
 4. 使用时间范围过滤避免下载太多内容
 5. 启用数据库支持增量更新
 
-需要更多帮助，请提交 Issue。 
+需要更多帮助，请提交 Issue。
+
+## 错误处理示例
+
+### 1. 网络错误处理
+```python
+try:
+    downloader.download_with_resume(url, filepath, "视频下载")
+except requests.exceptions.ConnectionError:
+    logger.error("网络连接失败")
+except requests.exceptions.Timeout:
+    logger.error("下载超时")
+```
+
+### 2. 文件系统错误处理
+```python
+try:
+    with open(filepath, 'wb') as f:
+        # 下载代码...
+except PermissionError:
+    logger.error("没有写入权限")
+except OSError as e:
+    logger.error(f"文件系统错误: {e}") 

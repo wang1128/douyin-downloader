@@ -5,6 +5,32 @@
 # 3. 请使用英文字符
 #######################################
 
+# 应用基础配置
+app:
+  name: douyin-downloader
+  version: 1.0.0
+  debug: false
+
+# 下载配置
+download:
+  max_concurrent: 3
+  chunk_size: 8192
+  retry_times: 3
+  timeout: 30
+
+# 日志配置
+logging:
+  level: INFO
+  file_path: logs/
+  max_size: 10485760  # 10MB
+  backup_count: 5
+
+# API配置
+api:
+  base_url: https://api.example.com
+  timeout: 10
+  retry_count: 3
+
 # 下载链接，支持多个链接
 link:
   - "https://v.douyin.com/xxxxx/"

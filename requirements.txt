@@ -1,13 +1,18 @@
-# 基础依赖
-requests>=2.31.0
-tqdm>=4.66.1
-PyYAML>=6.0.1
-sqlalchemy>=2.0.25
-rich>=13.7.0
+# Core dependencies
+requests==2.31.0          # HTTP 请求库
+pyyaml==6.0.1            # YAML 配置支持
+rich==13.7.0             # 终端美化
 
-# 异步支持（目前已注释相关代码，可选）
-# aiohttp>=3.9.1
-# asyncio>=3.4.3
+# Async support (optional)
+aiohttp==3.9.1           # 异步 HTTP
+asyncio==3.4.3           # 异步支持
+
+# Logging
+python-json-logger==2.0.7 # JSON 格式日志
+
+# Development
+pytest==7.4.3            # 单元测试
+black==23.11.0           # 代码格式化
 
 # 重试机制（目前已注释相关代码，可选）
 # tenacity>=8.2.3

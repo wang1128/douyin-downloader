@@ -42,28 +42,9 @@ class Download(object):
             TimeRemainingColumn(),
             transient=True  # 添加这个参数，进度条完成后自动消失
         )
-
-    def progressBarDownload(self, url, filepath, desc):
-        response = requests.get(url, stream=True, headers=douyin_headers)
-        chunk_size = 1024  # 每次下载的数据大小
-        content_size = int(response.headers['content-length'])  # 下载文件总大小
-        try:
-            if response.status_code == 200:  # 判断是否响应成功
-                with open(filepath, 'wb') as file, tqdm(total=content_size,
-                                                        unit="iB",
-                                                        desc=desc,
-                                                        unit_scale=True,
-                                                        unit_divisor=1024,
-
-                                                        ) as bar:  # 显示进度条
-                    for data in response.iter_content(chunk_size=chunk_size):
-                        size = file.write(data)
-                        bar.update(size)
-        except Exception as e:
-            # 下载异常 删除原来下载的文件, 可能未下成功
-            if os.path.exists(filepath):
-                os.remove(filepath)
-            print("[  错误  ]:下载出错\r")
+        self.retry_times = 3
+        self.chunk_size = 8192
+        self.timeout = 30
 
     def _download_media(self, url: str, path: Path, desc: str) -> bool:
         """通用下载方法，处理所有类型的媒体下载"""
@@ -71,30 +52,49 @@ class Download(object):
             self.console.print(f"[cyan]⏭️  跳过已存在: {desc}[/]")
             return True
             
+        # 使用新的断点续传下载方法替换原有的下载逻辑
+        return self.download_with_resume(url, path, desc)
+
+    def _download_media_files(self, aweme: dict, path: Path, name: str, desc: str) -> None:
+        """下载所有媒体文件"""
         try:
-            response = requests.get(url, stream=True, headers=douyin_headers)
-            if response.status_code != 200:
-                self.console.print(f"[red]❌ 下载失败: {desc} (状态码: {response.status_code})[/]")
-                return False
-                
-            total_size = int(response.headers.get('content-length', 0))
-            
-            with self.progress:
-                task = self.progress.add_task(f"[cyan]⬇️  {desc}", total=total_size)
-                
-                with open(path, 'wb') as file:
-                    for data in response.iter_content(chunk_size=1024):
-                        size = file.write(data)
-                        self.progress.update(task, advance=size)
-                        
-            self.console.print(f"[green]✅ 完成下载: {desc}[/]")
-            return True
-            
+            # 下载视频或图集
+            if aweme["awemeType"] == 0:  # 视频
+                video_path = path / f"{name}_video.mp4"
+                if url := aweme.get("video", {}).get("play_addr", {}).get("url_list", [None])[0]:
+                    if not self._download_media(url, video_path, f"[视频]{desc}"):
+                        raise Exception("视频下载失败")
+                    
+            elif aweme["awemeType"] == 1:  # 图集
+                for i, image in enumerate(aweme.get("images", [])):
+                    if url := image.get("url_list", [None])[0]:
+                        image_path = path / f"{name}_image_{i}.jpeg"
+                        if not self._download_media(url, image_path, f"[图集{i+1}]{desc}"):
+                            raise Exception(f"图片{i+1}下载失败")
+
+            # 下载音乐
+            if self.music and (url := aweme.get("music", {}).get("play_url", {}).get("url_list", [None])[0]):
+                music_name = utils.replaceStr(aweme["music"]["title"])
+                music_path = path / f"{name}_music_{music_name}.mp3"
+                if not self._download_media(url, music_path, f"[音乐]{desc}"):
+                    self.console.print(f"[yellow]⚠️  音乐下载失败: {desc}[/]")
+
+            # 下载封面
+            if self.cover and aweme["awemeType"] == 0:
+                if url := aweme.get("video", {}).get("cover", {}).get("url_list", [None])[0]:
+                    cover_path = path / f"{name}_cover.jpeg"
+                    if not self._download_media(url, cover_path, f"[封面]{desc}"):
+                        self.console.print(f"[yellow]⚠️  封面下载失败: {desc}[/]")
+
+            # 下载头像
+            if self.avatar:
+                if url := aweme.get("author", {}).get("avatar", {}).get("url_list", [None])[0]:
+                    avatar_path = path / f"{name}_avatar.jpeg"
+                    if not self._download_media(url, avatar_path, f"[头像]{desc}"):
+                        self.console.print(f"[yellow]⚠️  头像下载失败: {desc}[/]")
+                    
         except Exception as e:
-            self.console.print(f"[red]❌ 下载错误: {desc}\n   {str(e)}[/]")
-            if path.exists():
-                path.unlink()
-            return False
+            raise Exception(f"下载失败: {str(e)}")
 
     def awemeDownload(self, awemeDict: dict, savePath: Path) -> None:
         """下载单个作品的所有内容"""
@@ -130,37 +130,6 @@ class Download(object):
                 json.dump(data, ensure_ascii=False, indent=2, fp=f)
         except Exception as e:
             logger.error(f"保存JSON失败: {path}, 错误: {str(e)}")
-
-    def _download_media_files(self, aweme: dict, path: Path, name: str, desc: str) -> None:
-        """下载所有媒体文件"""
-        # 下载视频或图集
-        if aweme["awemeType"] == 0:  # 视频
-            video_path = path / f"{name}_video.mp4"
-            if url := aweme.get("video", {}).get("play_addr", {}).get("url_list", [None])[0]:
-                self._download_media(url, video_path, f"[视频]{desc}")
-        elif aweme["awemeType"] == 1:  # 图集
-            for i, image in enumerate(aweme.get("images", [])):
-                if url := image.get("url_list", [None])[0]:
-                    image_path = path / f"{name}_image_{i}.jpeg"
-                    self._download_media(url, image_path, f"[图集]{desc}")
-
-        # 下载音乐
-        if self.music and (url := aweme.get("music", {}).get("play_url", {}).get("url_list", [None])[0]):
-            music_name = utils.replaceStr(aweme["music"]["title"])
-            music_path = path / f"{name}_music_{music_name}.mp3"
-            self._download_media(url, music_path, f"[音乐]{desc}")
-
-        # 下载封面
-        if self.cover and aweme["awemeType"] == 0:
-            if url := aweme.get("video", {}).get("cover", {}).get("url_list", [None])[0]:
-                cover_path = path / f"{name}_cover.jpeg"
-                self._download_media(url, cover_path, f"[封面]{desc}")
-
-        # 下载头像
-        if self.avatar:
-            if url := aweme.get("author", {}).get("avatar", {}).get("url_list", [None])[0]:
-                avatar_path = path / f"{name}_avatar.jpeg"
-                self._download_media(url, avatar_path, f"[头像]{desc}")
 
     def userDownload(self, awemeList: List[dict], savePath: Path):
         if not awemeList:
@@ -217,31 +186,63 @@ class Download(object):
             border_style="green"
         ))
 
-    # 暂时注释掉异步下载相关的方法
-    '''
-    async def download_file(self, url: str, path: Path) -> bool:
-        """异步下载单个文件"""
-        try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url) as response:
-                    if response.status == 200:
-                        with open(path, 'wb') as f:
-                            f.write(await response.read())
-                        return True
-                    else:
-                        logger.error(f"下载失败: {url}, 状态码: {response.status}")
-                        return False
-        except Exception as e:
-            logger.error(f"下载出错: {url}, 错误: {str(e)}")
-            return False
+    def download_with_resume(self, url: str, filepath: Path, desc: str) -> bool:
+        """支持断点续传的下载方法"""
+        file_size = filepath.stat().st_size if filepath.exists() else 0
+        headers = {'Range': f'bytes={file_size}-'} if file_size > 0 else {}
+        
+        for attempt in range(self.retry_times):
+            try:
+                response = requests.get(url, headers={**douyin_headers, **headers}, 
+                                     stream=True, timeout=self.timeout)
+                
+                if response.status_code not in (200, 206):
+                    raise Exception(f"HTTP {response.status_code}")
+                    
+                total_size = int(response.headers.get('content-length', 0)) + file_size
+                mode = 'ab' if file_size > 0 else 'wb'
+                
+                with self.progress:
+                    task = self.progress.add_task(f"[cyan]⬇️  {desc}", total=total_size)
+                    self.progress.update(task, completed=file_size)  # 更新断点续传的进度
+                    
+                    with open(filepath, mode) as f:
+                        for chunk in response.iter_content(chunk_size=self.chunk_size):
+                            if chunk:
+                                size = f.write(chunk)
+                                self.progress.update(task, advance=size)
+                                
+                return True
+                
+            except Exception as e:
+                logger.warning(f"下载失败 (尝试 {attempt + 1}/{self.retry_times}): {str(e)}")
+                if attempt == self.retry_times - 1:
+                    self.console.print(f"[red]❌ 下载失败: {desc}\n   {str(e)}[/]")
+                    return False
+                time.sleep(1)  # 重试前等待
 
-    async def batch_download(self, urls: List[str], paths: List[Path]):
-        """批量异步下载"""
-        tasks = [self.download_file(url, path) 
-                for url, path in zip(urls, paths)]
-        results = await asyncio.gather(*tasks)
-        return all(results)
-    '''
+
+class DownloadManager:
+    def __init__(self, max_workers=3):
+        self.executor = ThreadPoolExecutor(max_workers=max_workers)
+    
+    def download_with_resume(self, url, filepath, callback=None):
+        # 检查是否存在部分下载的文件
+        file_size = os.path.getsize(filepath) if os.path.exists(filepath) else 0
+        
+        headers = {'Range': f'bytes={file_size}-'}
+        
+        response = requests.get(url, headers=headers, stream=True)
+        total_size = int(response.headers.get('content-length', 0))
+        
+        mode = 'ab' if file_size > 0 else 'wb'
+        
+        with open(filepath, mode) as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:
+                    f.write(chunk)
+                    if callback:
+                        callback(len(chunk))
 
 
 if __name__ == "__main__":
