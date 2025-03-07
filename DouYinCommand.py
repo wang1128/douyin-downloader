@@ -8,15 +8,32 @@ import sys
 import json
 import yaml
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List, Dict, Optional
 from pathlib import Path
+import logging
+
+# 配置logger
+logging.basicConfig(
+    level=logging.INFO,
+    format='[%(levelname)s] %(message)s'
+)
+# 改名为douyin_logger以避免冲突
+douyin_logger = logging.getLogger("DouYin")
+
+# 现在可以安全使用douyin_logger
+try:
+    import asyncio
+    import aiohttp
+    ASYNC_SUPPORT = True
+except ImportError:
+    ASYNC_SUPPORT = False
+    douyin_logger.warning("aiohttp 未安装，异步下载功能不可用")
 
 from apiproxy.douyin.douyin import Douyin
 from apiproxy.douyin.download import Download
 from apiproxy.douyin import douyin_headers
 from apiproxy.common import utils
-from utils import logger
 
 @dataclass
 class DownloadConfig:
@@ -30,19 +47,30 @@ class DownloadConfig:
     start_time: str = ""
     end_time: str = ""
     folderstyle: bool = True
-    mode: List[str] = ("post",)
+    mode: List[str] = field(default_factory=lambda: ["post"])
     thread: int = 5
     cookie: Optional[str] = None
+    database: bool = True
+    number: Dict[str, int] = field(default_factory=lambda: {
+        "post": 0, "like": 0, "allmix": 0, "mix": 0, "music": 0
+    })
+    increase: Dict[str, bool] = field(default_factory=lambda: {
+        "post": False, "like": False, "allmix": False, "mix": False, "music": False
+    })
     
     @classmethod
     def from_yaml(cls, yaml_path: Path) -> "DownloadConfig":
         """从YAML文件加载配置"""
-        # ... 配置加载逻辑
+        # 实现YAML配置加载逻辑
         
     @classmethod 
     def from_args(cls, args) -> "DownloadConfig":
         """从命令行参数加载配置"""
-        # ... 参数加载逻辑
+        # 实现参数加载逻辑
+        
+    def validate(self) -> bool:
+        """验证配置有效性"""
+        # 实现验证逻辑
 
 configModel = {
     "link": [],
@@ -71,10 +99,8 @@ configModel = {
         "music": False,
     },
     "thread": 5,
-    "cookie": None
-
+    "cookie": os.environ.get("DOUYIN_COOKIE", "")
 }
-
 
 def argument():
     parser = argparse.ArgumentParser(description='抖音批量下载工具 使用帮助')
@@ -124,6 +150,9 @@ def argument():
                         type=int, required=False, default=5)
     parser.add_argument("--cookie", help="设置cookie, 格式: \"name1=value1; name2=value2;\" 注意要加冒号",
                         type=str, required=False, default='')
+    parser.add_argument("--config", "-F", 
+                       type=argparse.FileType('r', encoding='utf-8'),
+                       help="配置文件路径")
     args = parser.parse_args()
     if args.thread <= 0:
         args.thread = 5
@@ -157,9 +186,9 @@ def yamlConfig():
                 configModel["end_time"] = time.strftime("%Y-%m-%d", time.localtime())
             
     except FileNotFoundError:
-        print("[  警告  ]:未找到配置文件config.yml\r\n")
+        douyin_logger.warning("未找到配置文件config.yml")
     except Exception as e:
-        print(f"[  警告  ]:配置文件解析出错: {str(e)}\r\n")
+        douyin_logger.warning(f"配置文件解析出错: {str(e)}")
 
 
 def validate_config(config: dict) -> bool:
@@ -172,11 +201,11 @@ def validate_config(config: dict) -> bool:
     
     for key, typ in required_keys.items():
         if key not in config or not isinstance(config[key], typ):
-            logger.error(f"无效配置项: {key}")
+            douyin_logger.error(f"无效配置项: {key}")
             return False
             
     if not all(isinstance(url, str) for url in config['link']):
-        logger.error("链接配置格式错误")
+        douyin_logger.error("链接配置格式错误")
         return False
         
     return True
@@ -196,7 +225,7 @@ def main():
         return
 
     if not configModel["link"]:
-        print("[  错误  ]:未设置下载链接")
+        douyin_logger.error("未设置下载链接")
         return
 
     # Cookie处理
@@ -206,7 +235,7 @@ def main():
     # 路径处理
     configModel["path"] = os.path.abspath(configModel["path"])
     os.makedirs(configModel["path"], exist_ok=True)
-    print("[  提示  ]:数据保存路径 " + configModel["path"])
+    douyin_logger.info(f"数据保存路径 {configModel['path']}")
 
     # 初始化下载器
     dy = Douyin(database=configModel["database"])
@@ -225,35 +254,38 @@ def main():
 
     # 计算耗时
     duration = time.time() - start
-    print(f'\n[下载完成]:总耗时: {int(duration/60)}分钟{int(duration%60)}秒\n')
+    douyin_logger.info(f'\n[下载完成]:总耗时: {int(duration/60)}分钟{int(duration%60)}秒\n')
 
 
 def process_link(dy, dl, link):
     """处理单个链接的下载逻辑"""
-    print("-" * 80)
-    print("[  提示  ]:正在请求的链接: " + link + "\r\n")
+    douyin_logger.info("-" * 80)
+    douyin_logger.info(f"[  提示  ]:正在请求的链接: {link}")
     
-    url = dy.getShareLink(link)
-    key_type, key = dy.getKey(url)
-    
-    handlers = {
-        "user": handle_user_download,
-        "mix": handle_mix_download,
-        "music": handle_music_download,
-        "aweme": handle_aweme_download,
-        "live": handle_live_download
-    }
-    
-    handler = handlers.get(key_type)
-    if handler:
-        handler(dy, dl, key)
-    else:
-        print(f"[  警告  ]:未知的链接类型: {key_type}")
+    try:
+        url = dy.getShareLink(link)
+        key_type, key = dy.getKey(url)
+        
+        handlers = {
+            "user": handle_user_download,
+            "mix": handle_mix_download,
+            "music": handle_music_download,
+            "aweme": handle_aweme_download,
+            "live": handle_live_download
+        }
+        
+        handler = handlers.get(key_type)
+        if handler:
+            handler(dy, dl, key)
+        else:
+            douyin_logger.warning(f"[  警告  ]:未知的链接类型: {key_type}")
+    except Exception as e:
+        douyin_logger.error(f"处理链接时出错: {str(e)}")
 
 
 def handle_user_download(dy, dl, key):
     """处理用户主页下载"""
-    print("[  提示  ]:正在请求用户主页下作品\r\n")
+    douyin_logger.info("[  提示  ]:正在请求用户主页下作品")
     data = dy.getUserDetailInfo(sec_uid=key)
     nickname = ""
     if data and data.get('user'):
@@ -263,8 +295,8 @@ def handle_user_download(dy, dl, key):
     os.makedirs(userPath, exist_ok=True)
 
     for mode in configModel["mode"]:
-        print("-" * 80)
-        print(f"[  提示  ]:正在请求用户主页模式: {mode}\r\n")
+        douyin_logger.info("-" * 80)
+        douyin_logger.info(f"[  提示  ]:正在请求用户主页模式: {mode}")
         
         if mode in ('post', 'like'):
             _handle_post_like_mode(dy, dl, key, mode, userPath)
@@ -301,7 +333,7 @@ def _handle_mix_mode(dy, dl, key, userPath):
     os.makedirs(modePath, exist_ok=True)
 
     for mix_id, mix_name in mixIdNameDict.items():
-        print(f'[  提示  ]:正在下载合集 [{mix_name}] 中的作品\r\n')
+        douyin_logger.info(f'[  提示  ]:正在下载合集 [{mix_name}] 中的作品')
         mix_file_name = utils.replaceStr(mix_name)
         datalist = dy.getMixInfo(
             mix_id, 
@@ -315,30 +347,36 @@ def _handle_mix_mode(dy, dl, key, userPath):
         
         if datalist:
             dl.userDownload(awemeList=datalist, savePath=os.path.join(modePath, mix_file_name))
-            print(f'[  提示  ]:合集 [{mix_name}] 中的作品下载完成\r\n')
+            douyin_logger.info(f'[  提示  ]:合集 [{mix_name}] 中的作品下载完成')
 
 def handle_mix_download(dy, dl, key):
     """处理单个合集下载"""
-    print("[  提示  ]:正在请求单个合集下作品\r\n")
-    datalist = dy.getMixInfo(
-        key, 
-        35, 
-        configModel["number"]["mix"], 
-        configModel["increase"]["mix"], 
-        "",
-        start_time=configModel.get("start_time", ""),
-        end_time=configModel.get("end_time", "")
-    )
-    
-    if datalist:
+    douyin_logger.info("[  提示  ]:正在请求单个合集下作品")
+    try:
+        datalist = dy.getMixInfo(
+            key, 
+            35, 
+            configModel["number"]["mix"], 
+            configModel["increase"]["mix"], 
+            "",
+            start_time=configModel.get("start_time", ""),
+            end_time=configModel.get("end_time", "")
+        )
+        
+        if not datalist:
+            douyin_logger.error("获取合集信息失败")
+            return
+            
         mixname = utils.replaceStr(datalist[0]["mix_info"]["mix_name"])
         mixPath = os.path.join(configModel["path"], f"mix_{mixname}_{key}")
         os.makedirs(mixPath, exist_ok=True)
         dl.userDownload(awemeList=datalist, savePath=mixPath)
+    except Exception as e:
+        douyin_logger.error(f"处理合集时出错: {str(e)}")
 
 def handle_music_download(dy, dl, key):
     """处理音乐作品下载"""
-    print("[  提示  ]:正在请求音乐(原声)下作品\r\n")
+    douyin_logger.info("[  提示  ]:正在请求音乐(原声)下作品")
     datalist = dy.getMusicInfo(key, 35, configModel["number"]["music"], configModel["increase"]["music"])
 
     if datalist:
@@ -349,11 +387,11 @@ def handle_music_download(dy, dl, key):
 
 def handle_aweme_download(dy, dl, key):
     """处理单个作品下载"""
-    print("[  提示  ]:正在请求单个作品\r\n")
+    douyin_logger.info("[  提示  ]:正在请求单个作品")
     try:
         result = dy.getAwemeInfo(key)
         if not result:
-            print("[  错误  ]:获取作品信息失败")
+            douyin_logger.error("获取作品信息失败")
             return
             
         datanew, _ = result  # 只有在确保result不为空时才解包
@@ -363,14 +401,14 @@ def handle_aweme_download(dy, dl, key):
             os.makedirs(awemePath, exist_ok=True)
             dl.userDownload(awemeList=[datanew], savePath=awemePath)
         else:
-            print("[  错误  ]:作品数据为空")
+            douyin_logger.error("作品数据为空")
             
     except Exception as e:
-        print(f"[  错误  ]:处理作品时出错: {str(e)}")
+        douyin_logger.error(f"处理作品时出错: {str(e)}")
 
 def handle_live_download(dy, dl, key):
     """处理直播下载"""
-    print("[  提示  ]:正在进行直播解析\r\n")
+    douyin_logger.info("[  提示  ]:正在进行直播解析")
     live_json = dy.getLiveInfo(key)
     
     if configModel["json"] and live_json:
@@ -380,10 +418,48 @@ def handle_live_download(dy, dl, key):
         live_file_name = utils.replaceStr(f"{key}{live_json['nickname']}")
         json_path = os.path.join(livePath, f"{live_file_name}.json")
         
-        print("[  提示  ]:正在保存获取到的信息到result.json\r\n")
+        douyin_logger.info("[  提示  ]:正在保存获取到的信息到result.json")
         with open(json_path, "w", encoding='utf-8') as f:
             json.dump(live_json, f, ensure_ascii=False, indent=2)
 
+# 条件定义异步函数
+if ASYNC_SUPPORT:
+    async def download_file(url, path):
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                if response.status == 200:
+                    with open(path, 'wb') as f:
+                        f.write(await response.read())
+                    return True
+        return False
+
+def update_config_from_args(args):
+    """从命令行参数更新配置"""
+    configModel["link"] = args.link
+    configModel["path"] = args.path
+    configModel["music"] = args.music
+    configModel["cover"] = args.cover
+    configModel["avatar"] = args.avatar
+    configModel["json"] = args.json
+    configModel["folderstyle"] = args.folderstyle
+    configModel["mode"] = args.mode if args.mode else ["post"]
+    configModel["thread"] = args.thread
+    configModel["cookie"] = args.cookie
+    configModel["database"] = args.database
+    
+    # 更新number字典
+    configModel["number"]["post"] = args.postnumber
+    configModel["number"]["like"] = args.likenumber
+    configModel["number"]["allmix"] = args.allmixnumber
+    configModel["number"]["mix"] = args.mixnumber
+    configModel["number"]["music"] = args.musicnumber
+    
+    # 更新increase字典
+    configModel["increase"]["post"] = args.postincrease
+    configModel["increase"]["like"] = args.likeincrease
+    configModel["increase"]["allmix"] = args.allmixincrease
+    configModel["increase"]["mix"] = args.mixincrease
+    configModel["increase"]["music"] = args.musicincrease
 
 if __name__ == "__main__":
     main()

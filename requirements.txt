@@ -4,8 +4,7 @@ pyyaml==6.0.1            # YAML 配置支持
 rich==13.7.0             # 终端美化
 
 # Async support (optional)
-aiohttp==3.9.1           # 异步 HTTP
-asyncio==3.4.3           # 异步支持
+aiohttp>=3.8.0           # 异步 HTTP
 
 # Logging
 python-json-logger==2.0.7 # JSON 格式日志
