@@ -350,12 +350,23 @@ def handle_music_download(dy, dl, key):
 def handle_aweme_download(dy, dl, key):
     """处理单个作品下载"""
     print("[  提示  ]:正在请求单个作品\r\n")
-    datanew, _ = dy.getAwemeInfo(key)
-    
-    if datanew:
-        awemePath = os.path.join(configModel["path"], "aweme")
-        os.makedirs(awemePath, exist_ok=True)
-        dl.userDownload(awemeList=[datanew], savePath=awemePath)
+    try:
+        result = dy.getAwemeInfo(key)
+        if not result:
+            print("[  错误  ]:获取作品信息失败")
+            return
+            
+        datanew, _ = result  # 只有在确保result不为空时才解包
+        
+        if datanew:
+            awemePath = os.path.join(configModel["path"], "aweme")
+            os.makedirs(awemePath, exist_ok=True)
+            dl.userDownload(awemeList=[datanew], savePath=awemePath)
+        else:
+            print("[  错误  ]:作品数据为空")
+            
+    except Exception as e:
+        print(f"[  错误  ]:处理作品时出错: {str(e)}")
 
 def handle_live_download(dy, dl, key):
     """处理直播下载"""
