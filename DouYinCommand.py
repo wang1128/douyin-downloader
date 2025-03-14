@@ -387,24 +387,57 @@ def handle_music_download(dy, dl, key):
 
 def handle_aweme_download(dy, dl, key):
     """处理单个作品下载"""
-    douyin_logger.info("[  提示  ]:正在请求单个作品")
-    try:
-        result = dy.getAwemeInfo(key)
-        if not result:
-            douyin_logger.error("获取作品信息失败")
-            return
+    print("[  提示  ]:正在请求单个作品\r\n")
+    
+    # 最大重试次数
+    max_retries = 3
+    retry_count = 0
+    
+    while retry_count < max_retries:
+        try:
+            print(f"[  提示  ]:第 {retry_count+1} 次尝试获取作品信息")
+            result = dy.getAwemeInfo(key)
             
-        datanew, _ = result  # 只有在确保result不为空时才解包
-        
-        if datanew:
-            awemePath = os.path.join(configModel["path"], "aweme")
-            os.makedirs(awemePath, exist_ok=True)
-            dl.userDownload(awemeList=[datanew], savePath=awemePath)
-        else:
-            douyin_logger.error("作品数据为空")
+            if not result:
+                print("[  错误  ]:获取作品信息失败")
+                retry_count += 1
+                if retry_count < max_retries:
+                    print("[  提示  ]:等待 5 秒后重试...")
+                    time.sleep(5)
+                continue
+                
+            datanew, _ = result
             
-    except Exception as e:
-        douyin_logger.error(f"处理作品时出错: {str(e)}")
+            if datanew:
+                awemePath = os.path.join(configModel["path"], "aweme")
+                os.makedirs(awemePath, exist_ok=True)
+                
+                # 下载前检查视频URL
+                video_url = datanew.get("video", {}).get("play_addr", {}).get("url_list", [""])[0]
+                if not video_url:
+                    print("[  错误  ]:无法获取视频URL")
+                    return
+                    
+                print(f"[  提示  ]:获取到视频URL，准备下载")
+                dl.userDownload(awemeList=[datanew], savePath=awemePath)
+                print(f"[  成功  ]:视频下载完成")
+                return
+            else:
+                print("[  错误  ]:作品数据为空")
+                
+            retry_count += 1
+            if retry_count < max_retries:
+                print("[  提示  ]:等待 5 秒后重试...")
+                time.sleep(5)
+                
+        except Exception as e:
+            print(f"[  错误  ]:处理作品时出错: {str(e)}")
+            retry_count += 1
+            if retry_count < max_retries:
+                print("[  提示  ]:等待 5 秒后重试...")
+                time.sleep(5)
+    
+    print("[  失败  ]:已达到最大重试次数，无法下载视频")
 
 def handle_live_download(dy, dl, key):
     """处理直播下载"""
