@@ -121,7 +121,7 @@ class Douyin(object):
         retries = 3
         for attempt in range(retries):
             try:
-                print('[  提示  ]:正在请求的作品 id = %s\r' % aweme_id)
+                logger.info(f'[  提示  ]:正在请求的作品 id = {aweme_id}')
                 if aweme_id is None:
                     return {}
 
@@ -141,7 +141,7 @@ class Douyin(object):
                     except Exception as e:
                         end = time.time()  # 结束时间
                         if end - start > self.timeout:
-                            print("[  提示  ]:重复请求该接口" + str(self.timeout) + "s, 仍然未获取到数据")
+                            logger.warning(f"重复请求该接口{self.timeout}s, 仍然未获取到数据")
                             return {}
 
 
@@ -155,7 +155,7 @@ class Douyin(object):
                     if datadict['aweme_detail']["images"] is not None:
                         awemeType = 1
                 except Exception as e:
-                    print("[  警告  ]:接口中未找到 images\r")
+                    logger.warning("接口中未找到 images")
 
                 # 转换成我们自己的格式
                 self.result.dataConvert(awemeType, self.result.awemeDict, datadict['aweme_detail'])
