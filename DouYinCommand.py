@@ -81,8 +81,8 @@ configModel = {
     "cover": True,
     "avatar": True,
     "json": True,
-    "start_time": "",
-    "end_time": "",
+    "start_time": "2023-01-01",
+    "end_time": "2024-12-31",
     "folderstyle": True,
     "mode": ["post"],
     "number": {

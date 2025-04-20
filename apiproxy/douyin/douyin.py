@@ -171,7 +171,7 @@ class Douyin(object):
 
     # 传入 url 支持 https://www.iesdouyin.com 与 https://v.douyin.com
     # mode : post | like 模式选择 like为用户点赞 post为用户发布
-    def getUserInfo(self, sec_uid, mode="post", count=35, number=0, increase=False, start_time="", end_time=""):
+    def getUserInfo(self, sec_uid, mode="post", count=30, number=0, increase=False, start_time="", end_time=""):
         """获取用户信息
         Args:
             sec_uid: 用户ID
@@ -236,7 +236,8 @@ class Douyin(object):
                     if not datadict or datadict.get("status_code") != 0:
                         self.console.print(f"[red]❌ API请求失败: {datadict.get('status_msg', '未知错误')}[/]")
                         break
-                        
+
+      #             self.console.print(datadict)
                     current_count = len(datadict["aweme_list"])
                     total_fetched += current_count
                     

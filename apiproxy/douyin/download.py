@@ -5,6 +5,8 @@
 import os
 import json
 import time
+import traceback
+
 import requests
 from tqdm import tqdm
 from concurrent.futures import ThreadPoolExecutor, wait, ALL_COMPLETED
@@ -61,40 +63,52 @@ class Download(object):
             # 下载视频或图集
             if aweme["awemeType"] == 0:  # 视频
                 video_path = path / f"{name}_video.mp4"
-                if url := aweme.get("video", {}).get("play_addr", {}).get("url_list", [None])[0]:
-                    if not self._download_media(url, video_path, f"[视频]{desc}"):
-                        raise Exception("视频下载失败")
-                    
+                # 安全获取视频URL（网页1[1,3](@ref)）
+                video_url = aweme.get("video", {}).get("play_addr", {}).get("url_list", [])[:1]
+                if video_url and self._download_media(video_url[0], video_path, f"[视频]{desc}"):
+                    pass
+                else:
+                    self.console.print(f"[yellow]⚠️  视频下载失败: {desc}[/]")
+
             elif aweme["awemeType"] == 1:  # 图集
                 for i, image in enumerate(aweme.get("images", [])):
-                    if url := image.get("url_list", [None])[0]:
+                    # 使用安全切片获取URL（网页4[4,5](@ref)）
+                    image_url = image.get("url_list", [])[:1]
+                    if image_url:
                         image_path = path / f"{name}_image_{i}.jpeg"
-                        if not self._download_media(url, image_path, f"[图集{i+1}]{desc}"):
-                            raise Exception(f"图片{i+1}下载失败")
+                        if not self._download_media(image_url[0], image_path, f"[图集{i + 1}]{desc}"):
+                            self.console.print(f"[yellow]⚠️  图片{i + 1}下载失败: {desc}[/]")
 
-            # 下载音乐
-            if self.music and (url := aweme.get("music", {}).get("play_url", {}).get("url_list", [None])[0]):
-                music_name = utils.replaceStr(aweme["music"]["title"])
-                music_path = path / f"{name}_music_{music_name}.mp3"
-                if not self._download_media(url, music_path, f"[音乐]{desc}"):
-                    self.console.print(f"[yellow]⚠️  音乐下载失败: {desc}[/]")
+            # 优化音乐下载逻辑（网页2[2,7](@ref)）
+            if self.music:
+                music_data = aweme.get("music", {})
+                # 安全获取URL列表首个元素
+                url_list = music_data.get("play_url", {}).get("url_list", [])
+                if url_list:  # 检查列表非空（网页3[3](@ref)）
+                    music_name = utils.replaceStr(music_data.get("title", "unknown"))
+                    music_path = path / f"{name}_music_{music_name}.mp3"
+                    if not self._download_media(url_list[0], music_path, f"[音乐]{desc}"):
+                        self.console.print(f"[yellow]⚠️  音乐下载失败: {desc}[/]")
 
-            # 下载封面
+            # 优化封面下载逻辑（同理处理其他模块）
             if self.cover and aweme["awemeType"] == 0:
-                if url := aweme.get("video", {}).get("cover", {}).get("url_list", [None])[0]:
+                cover_url = aweme.get("video", {}).get("cover", {}).get("url_list", [])[:1]
+                if cover_url:
                     cover_path = path / f"{name}_cover.jpeg"
-                    if not self._download_media(url, cover_path, f"[封面]{desc}"):
+                    if not self._download_media(cover_url[0], cover_path, f"[封面]{desc}"):
                         self.console.print(f"[yellow]⚠️  封面下载失败: {desc}[/]")
 
-            # 下载头像
+            # 优化头像下载逻辑
             if self.avatar:
-                if url := aweme.get("author", {}).get("avatar", {}).get("url_list", [None])[0]:
+                avatar_url = aweme.get("author", {}).get("avatar", {}).get("url_list", [])[:1]
+                if avatar_url:
                     avatar_path = path / f"{name}_avatar.jpeg"
-                    if not self._download_media(url, avatar_path, f"[头像]{desc}"):
+                    if not self._download_media(avatar_url[0], avatar_path, f"[头像]{desc}"):
                         self.console.print(f"[yellow]⚠️  头像下载失败: {desc}[/]")
-                    
+
         except Exception as e:
-            raise Exception(f"下载失败: {str(e)}")
+            traceback.print_exc()
+            self.console.print(f"[red]⚠️  发生未捕获异常: {str(e)}[/]")  # 改为警告而非终止
 
     def awemeDownload(self, awemeDict: dict, savePath: Path) -> None:
         """下载单个作品的所有内容"""
