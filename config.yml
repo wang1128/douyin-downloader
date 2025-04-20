@@ -12,20 +12,39 @@
 # 可以设置多个链接, 确保至少一个链接
 # 必选
 link:
-  # -  https://v.douyin.com/kVefc81/
-  # -  https://v.douyin.com/kVdkdxY/
-  # -  https://v.douyin.com/kVdMcrr/
-  # -  https://v.douyin.com/iRGu2mBL/
-  # -  https://v.douyin.com/iRGukBBk/
-  # -  https://v.douyin.com/iRGuJcW8/
-  # -  https://v.douyin.com/iRGHQY5t/
-  # - https://www.douyin.com/user/MS4wLjABAAAAXrGDowccDgJnarm2l95p80ojY5UpD-4VE_4WJwXcjvAMzQ79Ol1xizyLH8W3lgPX
-  - https://www.douyin.com/user/MS4wLjABAAAA6O7EZyfDRYXxJrUTpf91K3tmB4rBROkAw-nYMfld8ss
+
+#  - https://www.douyin.com/user/MS4wLjABAAAA_BNHk7z-Cb6siiuXuGb068BrWZP0y303EoMyXlFPhdVGozhlm836OvGEERpe9DAt # [] 鹤老师 完成
+#  - https://www.douyin.com/user/MS4wLjABAAAAA5juZ0N5hltccyB2gHJ21q7ZHObrHtuAcB3oiZ0nioM  #[x] 子皮商论 完成
+#  - https://www.douyin.com/user/MS4wLjABAAAA2cFi86xSiFI0MQtOlj2CSrdSx5gP_dUHM6M1nJJskLZMd1b9kHMNs7dy6sd9KyRH # 终于跟你分享 完成
+#  - https://www.douyin.com/user/MS4wLjABAAAAYlTvn_GWEqdI-2qBEsQ8Qw15kVfQGtOsW7lIQ-Q-k4A # 83萌叔 完成
+#  - https://www.douyin.com/user/MS4wLjABAAAAXgehfbYASAVAylBVtVOdKivb5YfvWolCiOD3AndmTPI # 张诗童 完成
+# 0419
+#  - https://www.douyin.com/user/MS4wLjABAAAAbASiyQTApN5N4gQyH7d2-7CvLp8kgF4kByizdMEcR3VHP0pNO9rFHu0dGK5nrhHo # 阳子老师
+#  - https://www.douyin.com/user/MS4wLjABAAAAksDiyQvgxoMq4pR6-pgviR_XJ69JZrpbENOENZOLX1I # 爸比读书
+#  - https://www.douyin.com/user/MS4wLjABAAAASs8AT1a-2W7aB3kYwaMDgTVB3OnJXZVD2XLiPPRr5Aw # 朴素之道
+#  - https://www.douyin.com/user/MS4wLjABAAAAjb1juHnK9tygA0nuoGgSEMW7ZuJzXNnTMx9XwaQh19k # 胡说老王
+  - https://www.douyin.com/user/MS4wLjABAAAAVRtkxwidaOH0u2rJQXG4USHpC2C-Tvyd28wLuZgneCchXENuf0C2nsAgy9mu34GX # 99年的老男人
+  - https://www.douyin.com/user/MS4wLjABAAAA7IklRpIazPeSkxSCaM-9mtUnuPsy1evuu4ogf3m58xI # 耶梦加德
+  - https://www.douyin.com/user/MS4wLjABAAAA3PR5gsw8oVppIaOIJOkeeYAHyydDg56V0y1wlQ-djTrNFDyl9PqYnnQ9G9JMZR-I # 王二宝宝宝
+
+  - https://www.douyin.com/user/MS4wLjABAAAArzI2xPJ5gtrMC6InYz9py5BPMGQ1jmYFPkdLWeFhPB4 # 崔璀的管理思维
+  - https://www.douyin.com/user/MS4wLjABAAAAQ1fuZvYgSHKqtk_46TwNeVllkYg9UCAV4wJ_wWxPAoQ # Anson安叔
+  - https://www.douyin.com/user/MS4wLjABAAAAtLTamz3gZsmTq5nomzJbSN3UmQ5RvzLezhCIdrTuqGw # 水球泡
+  - https://www.douyin.com/user/MS4wLjABAAAAN072cpRG6Ascc27mTfEvKj07hvclZfsDrjCqg3PzHZTYZ0WEknPaW61-qYa422MH # 姜Dora在此
+  - https://www.douyin.com/user/MS4wLjABAAAApiHI-5AobZfa9rsqz64W8f-BIPX9ikx1kp5_wWwk1hSxpzyS5MVA_jz90_cHetvI # 钢牙廖博士
+  - https://www.douyin.com/user/MS4wLjABAAAAzYyL2L8pqPH_VPqCZvUe1bt8AcbhGVChxzl7P1V-SCQ # 迪哥精准营养
+  - https://www.douyin.com/user/MS4wLjABAAAAXL9jEUP4kzYk9v5lgBUlL5OyfQdBLdnVwztbp_OflQM # 石头哥营养笔记
+  - https://www.douyin.com/user/MS4wLjABAAAABqs9QXPePo9fO3UqdDnTLrI0YrW9q9SEdwd5Nq0CKvY # 媒老板
+  - https://www.douyin.com/user/MS4wLjABAAAA9TbZGAaIlUyU_mcoIcRFVD497h90KHtQS0orNZEMbhg # 都市丽人抱柱子
+  - https://www.douyin.com/user/MS4wLjABAAAA7hiENPfyARPotUS0FootY0s1Qg51l4X3gvkXEKYUHas # 赵三观
+  - https://www.douyin.com/user/MS4wLjABAAAAQFJihVMQIEF7HvhojZvfk5JdYy5_i3v0w-F7McauxoGMUhSQTarLqM-MYtVZbHtp # 董十一
+  - https://www.douyin.com/user/MS4wLjABAAAA4uXmnEzv5xbCbC_OLzFYwZZN5gePCDvKNcTEBOYrMMOxRG87X6DUipwe93O_1cal # 安先生的短视频学院
+  - https://www.douyin.com/user/MS4wLjABAAAAvqhN9NG5iKF0Ev3nmG-HyZ9_oQJe6QPN-U_Toy63LT0 # 狗哥笔记
 
 # 下载保存位置, 默认当前文件位置
 # 必选
 path: ./Downloaded/
-
+#path: F:\Douyin_Downloaded
 # 是否下载视频中的音乐(True/False), 默认为True
 # 可选
 music: True
@@ -44,8 +63,8 @@ json: True
 
 
 # 下载时间范围
-start_time: "2024-12-29"
-end_time: "2024-12-30"
+start_time: "2020-01-01"
+end_time: "2025-12-30"
 
 
 folderstyle: True # True -> 每个视频是一个单独的文件夹; False -> 所有视频共用一个文件夹
@@ -75,9 +94,9 @@ mode:
 number:
   post: 0     # 主页下作品下载个数设置, 默认为0 全部下载
   like: 5     # 主页下喜欢下载个数设置, 默认为0 全部下载
-  allmix: 1   # 主页下合集下载个数设置, 默认为0 全部下载
-  mix: 5      # 单个合集下作品下载个数设置, 默认为0 全部下载
-  music: 5    # 音乐(原声)下作品下载个数设置, 默认为0 全部下载
+  allmix: 0   # 主页下合集下载个数设置, 默认为0 全部下载
+  mix: 0      # 单个合集下作品下载个数设置, 默认为0 全部下载
+  music: 0    # 音乐(原声)下作品下载个数设置, 默认为0 全部下载
 
 database: True # 如果不使用数据库, 增量更新将不可用
 
@@ -105,23 +124,23 @@ thread: 5
 # cookies 和 cookie 二选一, 要使用这种形式, 请注释下面的cookie
 # 目前只需要msToken、ttwid、odin_tt、passport_csrf_token、sid_guard
 # 可以动态添加, 程序会根据填的键查找，并没有写死, 如果抖音需要更多的cookie自己加上就行了
-cookies:
-  # msToken: xxx
-  # ttwid: xxx
-  # odin_tt: xxx
-  # passport_csrf_token: xxx
-  # sid_guard: xxx
-
-  msToken: 710-fIIacqPfoNUNM8EKjH2ev0veFV2YZCtCfs_HoN7kjpBKubLAODdh0nStKywolHK2nsJFHmdimUN23q-lo41pxjuiNMoqG1p_yUoIKU0CJ9bX-Q0638LXozcxspQnrzDnHB4M_3Hu3GljVuPYvv-8nHrxp4Xqkw-Bcr0MeothxDuPtHlEBA==
-  ttwid: 1%7Cxo2A_Uas39HcSPeQYZRGlCLpHonxCq5l8gMlrUPsh3I%7C1733400452%7C9f770c01cd093794153133a14108c93b5b6e6e18971372c21ecffe37f1938da0
-  odin_tt: a19f20351de5ed35a078f09115d098328b025656113ec0e35dfc4f7e1cf04dea5edd7d8176cf7070e0ff8f53414adeb8
-  passport_csrf_token: c2a7091feddce96551be4436e03ca3f3
-  sid_guard: 5e5adf6c506e880b1e0959afb5f6cb80%7C1739188609%7C5183984%7CFri%2C+11-Apr-2025+11%3A56%3A33+GMT
+#cookies:
+#  # msToken: xxx
+#  # ttwid: xxx
+#  # odin_tt: xxx
+#  # passport_csrf_token: xxx
+#  # sid_guard: xxx
+#
+#  msToken: 5SEGNn5TuPN-dQGQiHoTwESBWNvVGFcJvsxswHhHq0b6lhAKSrBVOImv_dV2Fv3-8fMjegEVRMaaCAGmTTfmalw9af7NZ5_HJJeD08VPiQ49m3WG_2USf3rdbK24ndXMOnm09J09hPxLoXzenkgMUN9kW69r057hv4ISrJ3mmfKC
+#  ttwid: 1%7Cxo2A_Uas39HcSPeQYZRGlCLpHonxCq5l8gMlrUPsh3I%7C1733400452%7C9f770c01cd093794153133a14108c93b5b6e6e18971372c21ecffe37f1938da0
+#  odin_tt: 819fb59edc0b0e7e8cf81dba6e8b85552518baeb8da2b00c8acf2207bcd44e260060ea0f5d10c4ffc4ae63be2d83c789ee113ea7a920bae639fc83a8019f80f
+#  passport_csrf_token: 5b071beb9761cd0243a997a43d64b0bf
+#  sid_guard: eaaa19a9506f31fb43716db7057acf08%7C1744017360%7C5184000%7CFri%2C+06-Jun-2025+09%3A16%3A00+GMT
 
 # cookie 请登录网页抖音后F12查看
 # cookies 和 cookie 二选一, 要使用这种形式, 请注释上面的cookies及包含的所有键值对
 # 设置了这个后上面的cookies选项自动失效, 这个优先级更高
 # 格式: "name1=value1; name2=value2;" 注意要加冒号
 # 冒号中的内容包括不限于以下键值对, 如果抖音需要更多的cookie自己加上就行了
-# cookie: "UIFID_TEMP=04334f064e21198b2492613256b037a8641b36104347f0fcdf493d9e3675e398c8361bd83707de94755840492898b49664fdc4773e2d21d7f3d2044e6a10753fad690e794a7e11725027570b31658cd8; hevc_supported=true; passport_csrf_token=57315bb6241951b3a12c263489757ecd; passport_csrf_token_default=57315bb6241951b3a12c263489757ecd; ttwid=1%7CdLmFlM41r8C4ORR33lhKD64shFIlhy1ffP-BE3TX_D0%7C1733400514%7Cd8bc89890a47e2a87ddc6e74d2d46ba65901945a5f2f9c0e615912a66f81cf12; bd_ticket_guard_client_web_domain=2; strategyABtestKey=%221733919637.521%22; gulu_source_res=eyJwX2luIjoiMDhjOGQ3ZTJiODQyNjZkZWI5Y2VkMGJiODNlNmY1ZWY0ZjMyNTE2ZmYyZjAzNDMzZjI0OWU1Y2Q1NTczNTk5NyJ9; download_guide=%223%2F20241211%2F0%22; FORCE_LOGIN=%7B%22videoConsumedRemainSeconds%22%3A180%2C%22isForcePopClose%22%3A1%7D; WallpaperGuide=%7B%22showTime%22%3A1733919958773%2C%22closeTime%22%3A0%2C%22showCount%22%3A1%2C%22cursor1%22%3A10%2C%22cursor2%22%3A2%7D; passport_assist_user=Cjwtx6S1PBDECC-y8R18cDUiZUzaUI-h8tTPg49dFkbIZjwpwBz4Ii9SymGkSCIq_SWLym9vz_wpgzvvUfQaSgo8C0t5KbST7U11cVyODckCkUqHqpU1l2YZW7l-2NPKMIZftRLBMHuxktCKF6KC6CORlfG1Y7Zhehc9s3xEEInp4w0Yia_WVCABIgEDfSasMw%3D%3D; n_mh=Zyh2F3zqYD4Ky4JvvqkIO0N9ZluP18G8BumVdFQoISU; sso_uid_tt=81aca5d68d5fd11bcadb978903d9834e; sso_uid_tt_ss=81aca5d68d5fd11bcadb978903d9834e; toutiao_sso_user=2e884860c5428ec722fd119a00345acf; toutiao_sso_user_ss=2e884860c5428ec722fd119a00345acf; sid_ucp_sso_v1=1.0.0-KGFlMjJmNWFiYmZhZTYxZjhmMjBlMjAxMjgxNjljYWM1ODFhZjY0YzEKHgj50OiCKRCriua6BhjvMSAOMMru87UFOAZA9AdIBhoCbGYiIDJlODg0ODYwYzU0MjhlYzcyMmZkMTE5YTAwMzQ1YWNm; ssid_ucp_sso_v1=1.0.0-KGFlMjJmNWFiYmZhZTYxZjhmMjBlMjAxMjgxNjljYWM1ODFhZjY0YzEKHgj50OiCKRCriua6BhjvMSAOMMru87UFOAZA9AdIBhoCbGYiIDJlODg0ODYwYzU0MjhlYzcyMmZkMTE5YTAwMzQ1YWNm; login_time=1733920044045; passport_auth_status=6646aed7874adc8fb0d8f78c05118ce3%2C; passport_auth_status_ss=6646aed7874adc8fb0d8f78c05118ce3%2C; uid_tt=c53319ac3b32162e2d1f9bfe0c480aa4; uid_tt_ss=c53319ac3b32162e2d1f9bfe0c480aa4; sid_tt=3a3caf31b0bc761c1373406533c850a3; sessionid=3a3caf31b0bc761c1373406533c850a3; sessionid_ss=3a3caf31b0bc761c1373406533c850a3; is_staff_user=false; SelfTabRedDotControl=%5B%7B%22id%22%3A%227068106696161232932%22%2C%22u%22%3A439%2C%22c%22%3A0%7D%2C%7B%22id%22%3A%227293767606094268435%22%2C%22u%22%3A44%2C%22c%22%3A0%7D%2C%7B%22id%22%3A%227051410144801851406%22%2C%22u%22%3A29%2C%22c%22%3A0%7D%2C%7B%22id%22%3A%227091857735595067399%22%2C%22u%22%3A44%2C%22c%22%3A0%7D%2C%7B%22id%22%3A%227290616752017246223%22%2C%22u%22%3A15%2C%22c%22%3A0%7D%2C%7B%22id%22%3A%227101925570363000869%22%2C%22u%22%3A5%2C%22c%22%3A0%7D%5D; _bd_ticket_crypt_doamin=2; _bd_ticket_crypt_cookie=f9c1684ee9d6589bf537cd1820bb7c40; __security_server_data_status=1; publish_badge_show_info=%220%2C0%2C0%2C1733920059878%22; store-region=cn-sh; store-region-src=uid; odin_tt=25e27f445057a7704dacebeac48c3dedd08d870a9edf7ab68322330b0aa322d7ce3dd5f33148d6c6bcbd7d213b84face; sid_guard=3a3caf31b0bc761c1373406533c850a3%7C1733920061%7C5183985%7CSun%2C+09-Feb-2025+12%3A27%3A26+GMT; sid_ucp_v1=1.0.0-KDQzODk4Y2E2ODhjZDA3NmE0MTg3YzA0MTVlM2JiZTliNTMxMTU5MTkKGAj50OiCKRC9iua6BhjvMSAOOAZA9AdIBBoCaGwiIDNhM2NhZjMxYjBiYzc2MWMxMzczNDA2NTMzYzg1MGEz; ssid_ucp_v1=1.0.0-KDQzODk4Y2E2ODhjZDA3NmE0MTg3YzA0MTVlM2JiZTliNTMxMTU5MTkKGAj50OiCKRC9iua6BhjvMSAOOAZA9AdIBBoCaGwiIDNhM2NhZjMxYjBiYzc2MWMxMzczNDA2NTMzYzg1MGEz; biz_trace_id=74fe7893; sdk_source_info=7e276470716a68645a606960273f276364697660272927676c715a6d6069756077273f276364697660272927666d776a68605a607d71606b766c6a6b5a7666776c7571273f275e58272927666a6b766a69605a696c6061273f27636469766027292762696a6764695a7364776c6467696076273f275e5827292771273f2731333d30373435373c363632342778; bit_env=sJDnvP-vX5BleHNgT0bDrpA5Br3h_xTqPQOp2Qqf_vcFXLcEw8tTYjFiPuHOl5HXqAMn6NjuEsdLmBFoHP8OkWLOZW9_P9dItLN2GQt9sg6gX4jdiCzhrBQe67sybuhBOv8vLLu2o6Afg5gt4GGKaGvGfOUIpRK0Usp1_ZTUVss9sA0YkPxnK88F86UQbWQvKNrQwFJupKxlUtyqSzpFYrN3irhYgYPpbVQ43GRXc4EHvlvqctK0RPjO-dC-LL-HXobVEHfiPZl2rX2Zt2zknf410_7iYbFLkUftbmXla6tfrr5Zri0NuNJbRfoZOrHxOur_IrfZcNnR2spRA5wADieEu5ZajBYFN06QQ-HFpQIaScPTLfAnnzN-lfe-3KMifFljCv32-c1W7i-SgP5Dmj9mLpDQBskphx71nT1NSRkxoTHeOzGdqn_Yto_QvjZsrdsfWUC3jz9NGBFJEuj8M-v4nJYkILE-gC8RdxBm10XcWJLY5IDxIllsFIulaVTtk7I61ROl6-y7n637pveEOkowr2Ht6e2zA1qQQQ_YwDg%3D; passport_auth_mix_state=aosp2ptupr9eqt33kxo4gr2de323rr6g; IsDouyinActive=true; home_can_add_dy_2_desktop=%220%22; stream_recommend_feed_params=%22%7B%5C%22cookie_enabled%5C%22%3Atrue%2C%5C%22screen_width%5C%22%3A1440%2C%5C%22screen_height%5C%22%3A900%2C%5C%22browser_online%5C%22%3Atrue%2C%5C%22cpu_core_num%5C%22%3A2%2C%5C%22device_memory%5C%22%3A8%2C%5C%22downlink%5C%22%3A3.35%2C%5C%22effective_type%5C%22%3A%5C%224g%5C%22%2C%5C%22round_trip_time%5C%22%3A100%7D%22; FOLLOW_LIVE_POINT_INFO=%22MS4wLjABAAAArIBhu7ToRQeY9cesFgQVa7iF5GnUmUr7Q7NBGyW_Fmg%2F1733932800000%2F0%2F0%2F1733920769684%22; FOLLOW_NUMBER_YELLOW_POINT_INFO=%22MS4wLjABAAAArIBhu7ToRQeY9cesFgQVa7iF5GnUmUr7Q7NBGyW_Fmg%2F1733932800000%2F0%2F1733920169686%2F0%22; bd_ticket_guard_client_data=eyJiZC10aWNrZXQtZ3VhcmQtdmVyc2lvbiI6MiwiYmQtdGlja2V0LWd1YXJkLWl0ZXJhdGlvbi12ZXJzaW9uIjoxLCJiZC10aWNrZXQtZ3VhcmQtcmVlLXB1YmxpYy1rZXkiOiJCRUVKM1l0Zm1EK0ZISFREcVVXZHZaYnRtL2NaZEc0OFZranJRT2luZVNtOWdBWXQ0OEFMZ3pHY1ZmTnk0NW4vK284YTlBaHJON25LcnV0bGVvSXFyVjQ9IiwiYmQtdGlja2V0LWd1YXJkLXdlYi12ZXJzaW9uIjoyfQ%3D%3D"
-
+cookie: '__ac_nonce=068011ea6007c929ae268; __ac_signature=_02B4Z6wo00f01hBU0pwAAIDDc14S9u3osT4QdNYAAOwi42; ttwid=1|N-uIp79pJbJcqoigu8FOsngMe-WpeCg_VHx8y5z7ml8|1744903846|161a38df174cae3fb96831f016bab8626136281a5627f02133204bde2f1888b1; UIFID_TEMP=c0baca47522b5b754fdb3143141ccf31cf11925ac58dea274806503b80372490c574fd86ff6cb07aa4af9e14dec8bbd15a33ca8a7bf1d8ceba72b84c4fa63e7d5d3715cdf4995cc8bdcd0e327cd48870; x-web-secsdk-uid=00efb0d3-a0c2-4c5a-aa1c-979cdde233a8; douyin.com; s_v_web_id=verify_m9lip51x_H5W4XW1o_tS8B_41M6_AYoO_Yto25gcFwvx2; device_web_cpu_core=24; device_web_memory_size=8; architecture=amd64; home_can_add_dy_2_desktop="0"; dy_swidth=1920; dy_sheight=1080; stream_recommend_feed_params="{\"cookie_enabled\":true,\"screen_width\":1920,\"screen_height\":1080,\"browser_online\":true,\"cpu_core_num\":24,\"device_memory\":8,\"downlink\":10,\"effective_type\":\"4g\",\"round_trip_time\":50}"; hevc_supported=true; strategyABtestKey="1744903848.19"; volume_info={"isUserMute":false,"isMute":false,"volume":0.5}; xgplayer_user_id=932291071776; passport_csrf_token=cff8ce10b283dada2506e48451f65296; passport_csrf_token_default=cff8ce10b283dada2506e48451f65296; fpk1=U2FsdGVkX19iSLGNuJXTWRr/U2m2l/GBGeyrfN5x3bKuZs5jc8vqftt5jtpGm1vb4qY7QLFpsweBUmQrzNpTSA==; fpk2=b9cbd8dc13f19f9e7eb854f472bfa274; FORCE_LOGIN={"videoConsumedRemainSeconds":180}; xg_device_score=8.048322535471607; __security_mc_1_s_sdk_crypt_sdk=c17de79f-4bcd-bc1f; bd_ticket_guard_client_data=eyJiZC10aWNrZXQtZ3VhcmQtdmVyc2lvbiI6MiwiYmQtdGlja2V0LWd1YXJkLWl0ZXJhdGlvbi12ZXJzaW9uIjoxLCJiZC10aWNrZXQtZ3VhcmQtcmVlLXB1YmxpYy1rZXkiOiJCQkNDZGdKdmdFWGoxaVQrUnhRQ0JkODFxNyswUVBOR0twVmlTQ1ptSjA0T0lJRTVaVTVuaklVdTNPWDRrQVJKRks4aEd2ZmcrckF2aHdVMEdpNEY2b2M9IiwiYmQtdGlja2V0LWd1YXJkLXdlYi12ZXJzaW9uIjoyfQ==; bd_ticket_guard_client_web_domain=2; is_dash_user=1; UIFID=c0baca47522b5b754fdb3143141ccf31cf11925ac58dea274806503b8037249088b3dd645248c1e98499a85820a09a23831a9788a5ae420098050ca83bf8c70cd24d70de8ef128b35bdbb9b306d258316a192587270f24fda33884284b6e46fd7311d049ff768e0d0c3fbd9b30864898f8b25b1bb3742cdd595c1db44d010304e35f2127d1e6d1c89d0927cb77db36d2fb455dbd4c4101587525a4160e7656f1; download_guide="1/20250417/0"; passport_mfa_token=CjdvuYIhZU/7d09lEhBp3JjZYbH0ZeuRWhg8VeDzGdxhU7Q+UAs4EWSVkZcFGWCejh+TtWRR9cJrGkoKPAAAAAAAAAAAAABO40c39t4IKUH0hcfTGm/kUKIaIaFh/U5bz/8SBfggM4GooeEcfIkUrZ1nP5cWWDomdRDpgO8NGPax0WwgAiIBAxgCjJA=; d_ticket=b3151150e828529e89501d75712ef11209e7f; passport_assist_user=CkBlw2nIBp9ebqo4b7zBnkE8y-tZNUfHSlkePaPwfIwjBMD563TiTqTPIgHOPiUe36A_A6neW5c0px8cYoPHh2zjGkoKPLStr_nekYGhUDdQIEsXp5_yv-cmR_2KEmHAvTgbEXrEhhSLEtN4S6oxJYSieDZrPesxTw3X6-gdNNBIQBCDgO8NGImv1lQgASIBA5zm2ug=; n_mh=HyALpt8DJ9kkw_DfcU76CAJYv35E9YrvSrEkadiJN9k; sso_uid_tt=9351ff4e41d0a5b3ab45da4a787ec0d3; sso_uid_tt_ss=9351ff4e41d0a5b3ab45da4a787ec0d3; toutiao_sso_user=8b3a6dd74a10d4e9c6cb12dba14d9e8c; toutiao_sso_user_ss=8b3a6dd74a10d4e9c6cb12dba14d9e8c; sid_ucp_sso_v1=1.0.0-KDViNWEzZDYyNDBhMTYyYzE3Y2YwNDU0NDcxZmZmNjVmNDI0MGNiMTkKIQijkeDo9c2PARCuvoTABhjvMSAMMPmj178GOAZA9AdIBhoCaGwiIDhiM2E2ZGQ3NGExMGQ0ZTljNmNiMTJkYmExNGQ5ZThj; ssid_ucp_sso_v1=1.0.0-KDViNWEzZDYyNDBhMTYyYzE3Y2YwNDU0NDcxZmZmNjVmNDI0MGNiMTkKIQijkeDo9c2PARCuvoTABhjvMSAMMPmj178GOAZA9AdIBhoCaGwiIDhiM2E2ZGQ3NGExMGQ0ZTljNmNiMTJkYmExNGQ5ZThj; __security_mc_1_s_sdk_sign_data_key_sso=5e5cbdd2-483f-996b; __security_mc_1_s_sdk_cert_key=f5accad7-4a4d-a487; passport_auth_status=7672a4de817da5b380206c87ddddcfb1,; passport_auth_status_ss=7672a4de817da5b380206c87ddddcfb1,; uid_tt=07f87f201bb66a3279a7d82e4e41866a; uid_tt_ss=07f87f201bb66a3279a7d82e4e41866a; sid_tt=2d87479907501e9a6ec67bf31ffae889; sessionid=2d87479907501e9a6ec67bf31ffae889; sessionid_ss=2d87479907501e9a6ec67bf31ffae889; is_staff_user=false; publish_badge_show_info="0,0,0,1744903985005"; SelfTabRedDotControl=[]; _bd_ticket_crypt_doamin=2; _bd_ticket_crypt_cookie=64aa92656f0ebc6db56c5807cb489aaf; __security_mc_1_s_sdk_sign_data_key_web_protect=5174f67a-4813-ab87; __security_server_data_status=1; passport_fe_beating_status=true; odin_tt=b3dcdb4548ba53ea5f963308d199db2be360104fe1bb59a0bcf9b501f6f1ece1a6c605c5154f68322419d239819e2716; sid_guard=2d87479907501e9a6ec67bf31ffae889|1744903993|5183992|Mon,+16-Jun-2025+15:33:05+GMT; sid_ucp_v1=1.0.0-KDVkZjMzMTNlNzgzMDllNzI0YzkyNDFjMTcxM2E4YmQxNmQ0YTA3MTYKGwijkeDo9c2PARC5voTABhjvMSAMOAZA9AdIBBoCbGYiIDJkODc0Nzk5MDc1MDFlOWE2ZWM2N2JmMzFmZmFlODg5; ssid_ucp_v1=1.0.0-KDVkZjMzMTNlNzgzMDllNzI0YzkyNDFjMTcxM2E4YmQxNmQ0YTA3MTYKGwijkeDo9c2PARC5voTABhjvMSAMOAZA9AdIBBoCbGYiIDJkODc0Nzk5MDc1MDFlOWE2ZWM2N2JmMzFmZmFlODg5; stream_player_status_params="{\"is_auto_play\":0,\"is_full_screen\":0,\"is_full_webscreen\":0,\"is_mute\":0,\"is_speed\":1,\"is_visible\":1}"; IsDouyinActive=true; biz_trace_id=db110b09; sdk_source_info=7e276470716a68645a606960273f276364697660272927676c715a6d6069756077273f276364697660272927666d776a68605a607d71606b766c6a6b5a7666776c7571273f275e58272927666a6b766a69605a696c6061273f27636469766027292762696a6764695a7364776c6467696076273f275e5827292771273f27343d363c303d31353c31313234272927676c715a75776a716a666a69273f2763646976602778; bit_env=r5gs70-lRe35aUpUnhtI3jQcdQZnmtr70TeobpyxUxoe1aUt2CqR4MOI0Jh3UQK4kHY7UKrzeIzAIdcx1eqhNjCGZW9ECvG9jgmgwcWNT4c91PZyOyCf56WG1bOQWdxQWRu_LqI-KTBf8qIUYJWth9F9C-tDUIAXDoU7ks4Ldx5Rbe4pF_w7YWF5BaIzTZ2efa9nTBIwHV0imKLtthd1ihU_9QZsifDy6QSzMWp3g4EK180z0X4AMNcTPhZ9QzT63Sg-pYd8cQWHaG6nnm9cauWmO7bN1P9kzIzNqa46SRh4jvQXIamNiWgXrhjprm0B-VAPQQZ7IWNhZJAlnGbZcVsrsM5ngLir6LkLVQDWMs-ry44yk4JDUyEYdLZkoL5x1kPcKDh3YltymYZHYmS_kw_s2h2GdW7M-yFchA6q_hmwIQCucOtpGrUAj-DcRvlUzQui3IqCDpwWQEtXlO_FTpRuINvFuv4z3yrb3Mf8NOdH1aymp3IcbTCiOyFzp-H3; gulu_source_res=eyJwX2luIjoiNWQ0NDI1OGMwM2RlZWZjMTkxNWRlODkwMjU0Yjk3NzY3NGUzMTViZDNmM2E5ZWZjMjA4M2UzMTliMWFmZjE0ZSJ9; passport_auth_mix_state=5wfhdsp8jz79lvcz112mf5330onlp3e3
+'

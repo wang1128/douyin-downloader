@@ -4,6 +4,7 @@
 
 import argparse
 import os
+import random
 import sys
 import json
 import yaml
@@ -12,6 +13,7 @@ from dataclasses import dataclass, field
 from typing import List, Dict, Optional
 from pathlib import Path
 import logging
+
 
 # 配置logger
 logging.basicConfig(
@@ -388,6 +390,9 @@ def handle_music_download(dy, dl, key):
 def handle_aweme_download(dy, dl, key):
     """处理单个作品下载"""
     douyin_logger.info("[  提示  ]:正在请求单个作品")
+    sleep_time = random.uniform(1, 3.5)
+    douyin_logger.info("[  提示  ]:休眠" + str(sleep_time))
+    time.sleep(sleep_time)
     
     # 最大重试次数
     max_retries = 3
