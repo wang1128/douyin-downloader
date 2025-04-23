@@ -31,8 +31,8 @@ link:
 #  - https://www.douyin.com/user/MS4wLjABAAAAQ1fuZvYgSHKqtk_46TwNeVllkYg9UCAV4wJ_wWxPAoQ # Anson安叔 2 完成
 #  - https://www.douyin.com/user/MS4wLjABAAAAN072cpRG6Ascc27mTfEvKj07hvclZfsDrjCqg3PzHZTYZ0WEknPaW61-qYa422MH # 姜Dora在此 2 完成
 #  - https://www.douyin.com/user/MS4wLjABAAAAtLTamz3gZsmTq5nomzJbSN3UmQ5RvzLezhCIdrTuqGw # 水球泡 2 完成
-  - https://www.douyin.com/user/MS4wLjABAAAApiHI-5AobZfa9rsqz64W8f-BIPX9ikx1kp5_wWwk1hSxpzyS5MVA_jz90_cHetvI # 钢牙廖博士 1
-  - https://www.douyin.com/user/MS4wLjABAAAAzYyL2L8pqPH_VPqCZvUe1bt8AcbhGVChxzl7P1V-SCQ # 迪哥精准营养 1
+#  - https://www.douyin.com/user/MS4wLjABAAAApiHI-5AobZfa9rsqz64W8f-BIPX9ikx1kp5_wWwk1hSxpzyS5MVA_jz90_cHetvI # 钢牙廖博士 1
+#  - https://www.douyin.com/user/MS4wLjABAAAAzYyL2L8pqPH_VPqCZvUe1bt8AcbhGVChxzl7P1V-SCQ # 迪哥精准营养 1
 #  - https://www.douyin.com/user/MS4wLjABAAAAXL9jEUP4kzYk9v5lgBUlL5OyfQdBLdnVwztbp_OflQM # 石头哥营养笔记 2 完成
 #  - https://www.douyin.com/user/MS4wLjABAAAABqs9QXPePo9fO3UqdDnTLrI0YrW9q9SEdwd5Nq0CKvY # 媒老板 2
 #  - https://www.douyin.com/user/MS4wLjABAAAA9TbZGAaIlUyU_mcoIcRFVD497h90KHtQS0orNZEMbhg # 都市丽人抱柱子 2
@@ -41,10 +41,16 @@ link:
 #  - https://www.douyin.com/user/MS4wLjABAAAA4uXmnEzv5xbCbC_OLzFYwZZN5gePCDvKNcTEBOYrMMOxRG87X6DUipwe93O_1cal # 安先生的短视频学院 3
 #  - https://www.douyin.com/user/MS4wLjABAAAAvqhN9NG5iKF0Ev3nmG-HyZ9_oQJe6QPN-U_Toy63LT0 # 狗哥笔记 3
 
+#  - https://www.douyin.com/user/MS4wLjABAAAAzh-9Sahmwk-Sg-RtbiSy9XwNSgQ0sf8q4KRFmXvsl34?from_tab_name=main #dada
+#  - https://www.douyin.com/user/MS4wLjABAAAA5Lkm9xlj1jVwDH-sC9eXFsB9s54t2wawnpJVAD4Iv1MHbJnU77HqaaIIuze1CvJ5?from_tab_name=main #dada2
+  - https://www.douyin.com/user/MS4wLjABAAAAXVyPXLuoQ3s1S6z5JjTvKRnCXV1yzz5gDd8__hhDT7fkpzuKU6FhGml8NYok-Cq1?from_tab_name=main # dada3
+
+#  - https://www.douyin.com/user/MS4wLjABAAAA6gO_vEP979I63TLy-k7ClEwcsMLMgfC4VfvCPAIUAKI?from_tab_name=main #经纬
+
 # 下载保存位置, 默认当前文件位置
 # 必选
 #path: ./Downloaded/
-path: E:\Douyin_Downloaded
+path: G:\Douyin_Downloaded
 # 是否下载视频中的音乐(True/False), 默认为True
 # 可选
 music: True
@@ -63,7 +69,7 @@ json: True
 
 
 # 下载时间范围
-start_time: "2022-01-01"
+start_time: "2020-01-01"
 end_time: "2025-12-30"
 
 
@@ -108,7 +114,7 @@ database: True # 如果不使用数据库, 增量更新将不可用
 # 情况4: 当获取主页所有mix时(mode是mix模式)比较特殊, number(allmix) 控制下载多少个合集, increase(allmix) 对每个合集进行增量更新
 # 可选
 increase:
-  post: False     # 是否开启主页作品增量下载(True/False), 默认为False
+  post: True     # 是否开启主页作品增量下载(True/False), 默认为False
   like: False     # 是否开启主页喜欢增量下载(True/False), 默认为False
   allmix: False   # 是否开启主页合集增量下载(True/False), 默认为False
   mix: False      # 是否开启单个合集下作品增量下载(True/False), 默认为False
