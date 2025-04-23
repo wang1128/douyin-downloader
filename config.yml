@@ -43,14 +43,16 @@ link:
 
 #  - https://www.douyin.com/user/MS4wLjABAAAAzh-9Sahmwk-Sg-RtbiSy9XwNSgQ0sf8q4KRFmXvsl34?from_tab_name=main #dada
 #  - https://www.douyin.com/user/MS4wLjABAAAA5Lkm9xlj1jVwDH-sC9eXFsB9s54t2wawnpJVAD4Iv1MHbJnU77HqaaIIuze1CvJ5?from_tab_name=main #dada2
-  - https://www.douyin.com/user/MS4wLjABAAAAXVyPXLuoQ3s1S6z5JjTvKRnCXV1yzz5gDd8__hhDT7fkpzuKU6FhGml8NYok-Cq1?from_tab_name=main # dada3
+#  - https://www.douyin.com/user/MS4wLjABAAAAXVyPXLuoQ3s1S6z5JjTvKRnCXV1yzz5gDd8__hhDT7fkpzuKU6FhGml8NYok-Cq1?from_tab_name=main # dada3
+  - https://www.douyin.com/user/MS4wLjABAAAASs8AT1a-2W7aB3kYwaMDgTVB3OnJXZVD2XLiPPRr5Aw?from_tab_name=main # 朴素之道
 
 #  - https://www.douyin.com/user/MS4wLjABAAAA6gO_vEP979I63TLy-k7ClEwcsMLMgfC4VfvCPAIUAKI?from_tab_name=main #经纬
 
 # 下载保存位置, 默认当前文件位置
 # 必选
 #path: ./Downloaded/
-path: G:\Douyin_Downloaded
+#path: G:\Douyin_Downloaded
+path: /Users/penghao/Downloads
 # 是否下载视频中的音乐(True/False), 默认为True
 # 可选
 music: True
